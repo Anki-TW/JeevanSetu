@@ -138,8 +138,14 @@
       </div>
 
       <!-- Right HUD Items -->
-      <div class="flex items-center gap-5">
+      <div class="flex items-center gap-4">
         
+        <!-- Jeevan AI Copilot Button -->
+        <button onclick="window.aiAssistant.openModal()" class="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-extrabold rounded-full shadow-lg shadow-indigo-500/20 transition flex items-center gap-1.5">
+          <span>🤖 Jeevan AI</span>
+          <span class="bg-white/20 text-[10px] px-1.5 py-0.2 rounded-full">Copilot</span>
+        </button>
+
         <!-- Live Date & Clock -->
         <div class="text-xs text-slate-600 flex items-center gap-2 font-medium">
           <span id="live-ist-date">20 May 2026 | 10:30 AM</span>
@@ -806,6 +812,8 @@
   <script src="js/config.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/weather-api.js"></script>
+  <script src="js/geocoding-api.js"></script>
+  <script src="js/ai-assistant.js"></script>
   <script src="js/gis-map.js"></script>
   <script src="js/ai-prediction.js"></script>
   <script src="js/fleet-tracker.js"></script>

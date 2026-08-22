@@ -24,19 +24,29 @@ class NER_App {
     this.gisMap = new window.NER_GISMap('gis-map-canvas');
     this.gisMap.init();
 
-    // 3. Initialize AI Engine
+    // 3. Initialize Nominatim Live Geocoding API
+    this.geocodingAPI = new window.NER_GeocodingAPI(this.gisMap);
+    this.geocodingAPI.init();
+    window.geocodingAPI = this.geocodingAPI;
+
+    // 4. Initialize Jeevan AI Assistant Copilot
+    this.aiAssistant = new window.NER_AIAssistant();
+    this.aiAssistant.init();
+    window.aiAssistant = this.aiAssistant;
+
+    // 5. Initialize AI Routing Engine
     this.aiEngine = new window.NER_AIPredictionEngine();
 
-    // 4. Initialize Fleet Tracker
+    // 6. Initialize Fleet Tracker
     this.fleetTracker = new window.NER_FleetTracker(this.gisMap);
     this.fleetTracker.init();
     window.fleetTracker = this.fleetTracker;
 
-    // 5. Initialize Incident Reporter
+    // 7. Initialize Incident Reporter
     this.incidentReporter = new window.NER_IncidentReporter(this.gisMap);
     window.incidentReporter = this.incidentReporter;
 
-    // 6. Initialize Alerts Manager
+    // 8. Initialize Alerts Manager
     this.alertsManager = new window.NER_AlertsManager(this.gisMap);
     this.alertsManager.init();
     window.alertsManager = this.alertsManager;
