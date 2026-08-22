@@ -48,8 +48,21 @@
     <!-- Logo & Brand Header -->
     <div>
       <div class="p-5 pb-4 flex items-center gap-3 border-b border-slate-800/60">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 flex items-center justify-center text-xl shadow-lg shadow-emerald-900/30">
-          🌱
+        <!-- Aesthetic Jeevan Setu Vector Logo Mark -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-900 via-slate-850 to-slate-900 border border-emerald-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-emerald-950/50 group">
+          <svg viewBox="0 0 100 100" class="w-full h-full text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]">
+            <!-- Mountain Peaks -->
+            <path d="M 15 70 L 35 35 L 55 60 L 75 25 L 90 70 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+            <!-- Bridge Arch Line -->
+            <path d="M 10 75 Q 50 25 90 75" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"/>
+            <!-- Bridge Vertical Support Pillars -->
+            <line x1="30" y1="58" x2="30" y2="75" stroke="#38bdf8" stroke-width="3"/>
+            <line x1="50" y1="44" x2="50" y2="75" stroke="#38bdf8" stroke-width="3"/>
+            <line x1="70" y1="58" x2="70" y2="75" stroke="#38bdf8" stroke-width="3"/>
+            <!-- Center Life Sprout Leaf Node -->
+            <path d="M 50 65 Q 40 50 50 40 Q 60 50 50 65 Z" fill="#10b981"/>
+            <circle cx="50" cy="40" r="3" fill="#38bdf8"/>
+          </svg>
         </div>
         <div>
           <h1 class="font-extrabold text-base tracking-tight text-white flex items-center gap-1">
@@ -129,8 +142,14 @@
   <aside id="mobile-drawer" class="fixed top-0 bottom-0 left-0 w-72 bg-[#0d1527] text-white flex flex-col justify-between z-[9999] transform -translate-x-full transition-transform duration-300 lg:hidden shadow-2xl">
     <div>
       <div class="p-4 flex items-center justify-between border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🌱</span>
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-slate-900 border border-emerald-500/30 flex items-center justify-center p-1">
+            <svg viewBox="0 0 100 100" class="w-full h-full text-emerald-400">
+              <path d="M 15 70 L 35 35 L 55 60 L 75 25 L 90 70 Z" fill="none" stroke="currentColor" stroke-width="4"/>
+              <path d="M 10 75 Q 50 25 90 75" fill="none" stroke="#38bdf8" stroke-width="6"/>
+              <path d="M 50 65 Q 40 50 50 40 Q 60 50 50 65 Z" fill="#10b981"/>
+            </svg>
+          </div>
           <b class="text-sm font-bold text-white">Jeevan Setu</b>
         </div>
         <button onclick="window.app.toggleMobileDrawer(false)" class="text-slate-400 hover:text-white text-xl p-1">&times;</button>
