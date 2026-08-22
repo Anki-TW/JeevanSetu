@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bachao-Bachao: AI-Based Smart Logistics & Accessibility Intelligence (NER)</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B1120">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              rose: '#f43f5e',
+              slate: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet GIS CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-[#0a0f1d] text-gray-100 flex flex-col h-screen overflow-hidden select-none">
+
+  <!-- TOP HEADER / CONTROL HUD -->
+  <header class="glass-panel border-b border-white/10 px-4 py-2.5 flex items-center justify-between z-30 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-emerald-500 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-cyan-500/20">
+        🏔️
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-extrabold text-sm md:text-base tracking-tight text-white flex items-center gap-1.5">
+            <span class="text-cyan-400">Bachao-Bachao</span>
+            <span class="text-gray-400 text-xs font-mono">| NER Logistics AI</span>
+          </h1>
+          <span id="network-status-badge" class="badge-pill badge-normal text-[10px]">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Online
+          </span>
+        </div>
+        <p class="text-[11px] text-gray-400 hidden sm:block" data-i18n="appSubtitle">AI-Powered Smart Logistics & Multi-Terrain Accessibility Platform for North Eastern Region</p>
+      </div>
+    </div>
+
+    <!-- Search & Regional Tools -->
+    <div class="flex items-center gap-3">
+      <!-- Search Input -->
+      <div class="relative hidden md:block">
+        <input id="global-search-input" type="text" placeholder="Search District, Highway (e.g. Tawang, NH-10)..."
+               class="bg-slate-900/90 border border-slate-700/70 rounded-lg px-3 py-1 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500 w-64">
+        <span class="absolute right-2.5 top-1.5 text-xs text-gray-500">🔍</span>
+      </div>
+
+      <!-- Live IST Clock -->
+      <div id="live-ist-clock" class="font-mono text-xs text-cyan-300 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-800 hidden lg:block">
+        --:--:-- IST
+      </div>
+
+      <!-- Regional Language Selector -->
+      <div class="flex items-center gap-1 bg-slate-900/90 border border-slate-700/70 rounded-lg px-2 py-0.5">
+        <span class="text-xs">🌐</span>
+        <select id="language-select" class="bg-transparent text-xs text-gray-200 font-medium focus:outline-none cursor-pointer">
+          <option value="en" class="bg-slate-900">English</option>
+          <option value="as" class="bg-slate-900">অসমীয়া (Assamese)</option>
+          <option value="bn" class="bg-slate-900">বাংলা (Bengali)</option>
+          <option value="hi" class="bg-slate-900">हिन्दी (Hindi)</option>
+          <option value="mni" class="bg-slate-900">মৈতৈলোন্ (Meitei)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- KEY METRICS BANNER -->
+  <section class="bg-slate-950/90 border-b border-slate-800/80 px-4 py-1.5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs shrink-0 z-20">
+    <div class="flex items-center gap-2">
+      <span class="text-base">🚚</span>
+      <div>
+        <span class="text-gray-400 text-[10px] uppercase block" data-i18n="statActiveConvoys">Active Convoys</span>
+        <b id="stat-active-convoys" class="font-mono text-cyan-400 text-sm">4</b>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-base">📍</span>
+      <div>
+        <span class="text-gray-400 text-[10px] uppercase block" data-i18n="statAccessibleDistricts">Accessible Districts</span>
+        <b id="stat-accessible-districts" class="font-mono text-emerald-400 text-sm">18 / 24</b>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-base">⚠️</span>
+      <div>
+        <span class="text-gray-400 text-[10px] uppercase block" data-i18n="statHighRiskBottlenecks">High-Risk Bottlenecks</span>
+        <b id="stat-high-risk" class="font-mono text-rose-400 text-sm">8</b>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-base">📥</span>
+      <div>
+        <span class="text-gray-400 text-[10px] uppercase block" data-i18n="statPendingOfflineReports">Pending Offline Reports</span>
+        <b id="stat-offline-count" class="font-mono text-amber-400 text-sm">0</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN WORKSPACE GRID -->
+  <main class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+
+    <!-- LEFT: INTERACTIVE GIS MAP CONTAINER -->
+    <div class="relative flex-1 h-[45vh] lg:h-auto overflow-hidden bg-slate-950">
+      <div id="gis-map-canvas" class="w-full h-full"></div>
+
+      <!-- MAP FLOATING OVERLAY CONTROLS -->
+      <div class="absolute top-3 left-3 z-[1000] glass-panel p-2.5 rounded-xl border border-white/10 shadow-2xl max-w-xs space-y-2">
+        <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+          <span class="text-[11px] font-bold text-cyan-300 uppercase tracking-wider" data-i18n="layerSelectorTitle">GIS Layer Filters</span>
+          <select id="basemap-selector" class="bg-slate-900 text-[10px] text-gray-300 border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none">
+            <option value="Tactical Dark">Tactical Dark</option>
+            <option value="Terrain Contours (Topo)">Terrain Topo</option>
+            <option value="Standard OSM">Standard OSM</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px]">
+          <label class="flex items-center gap-1.5 cursor-pointer text-gray-300 hover:text-white">
+            <input type="checkbox" id="layer-toggle-highways" checked class="accent-cyan-500">
+            <span data-i18n="layerHighways">Highways</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-gray-300 hover:text-white">
+            <input type="checkbox" id="layer-toggle-districts" checked class="accent-cyan-500">
+            <span data-i18n="layerDistricts">Districts</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-gray-300 hover:text-white">
+            <input type="checkbox" id="layer-toggle-bridges" checked class="accent-cyan-500">
+            <span data-i18n="layerBridges">Bridges</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-gray-300 hover:text-white">
+            <input type="checkbox" id="layer-toggle-fleet" checked class="accent-cyan-500">
+            <span data-i18n="layerFleet">Convoys</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-gray-300 hover:text-white">
+            <input type="checkbox" id="layer-toggle-incidents" checked class="accent-cyan-500">
+            <span data-i18n="layerIncidents">Incidents</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-gray-300 hover:text-white">
+            <input type="checkbox" id="layer-toggle-radar" checked class="accent-cyan-500">
+            <span data-i18n="layerWeather">Radar</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- MAP LEGEND -->
+      <div class="absolute bottom-3 left-3 z-[1000] glass-panel px-3 py-1.5 rounded-lg border border-white/10 text-[10px] flex items-center gap-3">
+        <span class="flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Normal</span>
+        <span class="flex items-center gap-1 text-amber-400"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Caution / Sinking</span>
+        <span class="flex items-center gap-1 text-rose-400"><span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> Severely Blocked</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: COMMAND & CONTROL INTELLIGENCE PANEL -->
+    <div class="w-full lg:w-[460px] xl:w-[500px] flex flex-col bg-slate-900/95 border-t lg:border-t-0 lg:border-l border-white/10 shrink-0 z-10 overflow-hidden">
+      
+      <!-- TAB NAVIGATION -->
+      <div class="flex items-center border-b border-slate-800 overflow-x-auto shrink-0 bg-slate-950/60">
+        <button data-tab="gis" class="tab-button active px-3.5 py-2.5 text-xs font-semibold text-gray-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          🗺️ <span data-i18n="tabGis">GIS Hub</span>
+        </button>
+        <button data-tab="ai-route" class="tab-button px-3.5 py-2.5 text-xs font-semibold text-gray-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          🤖 <span data-i18n="tabAiRoute">AI Routing</span>
+        </button>
+        <button data-tab="fleet" class="tab-button px-3.5 py-2.5 text-xs font-semibold text-gray-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          🚚 <span data-i18n="tabFleet">Fleet GPS</span>
+        </button>
+        <button data-tab="incident" class="tab-button px-3.5 py-2.5 text-xs font-semibold text-gray-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          📝 <span data-i18n="tabIncident">Field Report</span>
+        </button>
+        <button data-tab="alerts" class="tab-button px-3.5 py-2.5 text-xs font-semibold text-gray-300 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          🚨 <span data-i18n="tabAlerts">Alerts</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: GIS ACCESSIBILITY & DISTRICT OVERVIEW -->
+      <div id="tab-panel-gis" class="tab-content-panel p-4 flex-1 overflow-y-auto space-y-4">
+        <div>
+          <h3 class="font-bold text-sm text-cyan-300 mb-1" data-i18n="tabGis">NER Regional Connectivity Status</h3>
+          <p class="text-xs text-gray-400">Monitoring 8 states, critical mountain lifelines, and river bridge corridors.</p>
+        </div>
+
+        <!-- 8 States Grid -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg">
+            <b class="text-white">Assam (Valley & Hills)</b>
+            <p class="text-[11px] text-gray-400">NH-27 Clear • NH-6 Caution</p>
+          </div>
+          <div class="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg">
+            <b class="text-white">Arunachal Pradesh</b>
+            <p class="text-[11px] text-rose-400 font-medium">Sela Pass Severe Snow/Slush</p>
+          </div>
+          <div class="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg">
+            <b class="text-white">Meghalaya (Planes)</b>
+            <p class="text-[11px] text-amber-400 font-medium">Sonapur Mudslide Active</p>
+          </div>
+          <div class="p-2.5 bg-slate-950/70 border border-slate-800 rounded-lg">
+            <b class="text-white">Sikkim (Himalayan)</b>
+            <p class="text-[11px] text-rose-400 font-medium">NH-10 Teesta 29th Mile Block</p>
+          </div>
+        </div>
+
+        <!-- Strategic Bridges Status List -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-xs text-gray-300 uppercase tracking-wider">Strategic River Bridges & Passes</h4>
+          <div class="space-y-1.5 text-xs">
+            <div class="p-2.5 bg-slate-950/60 border border-slate-800 rounded-lg flex items-center justify-between">
+              <div>
+                <b class="text-white">Saraighat Bridge (Guwahati)</b>
+                <p class="text-[10px] text-gray-400">Normal structural load (94/100)</p>
+              </div>
+              <span class="badge-pill badge-normal text-[10px]">Normal</span>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 border border-slate-800 rounded-lg flex items-center justify-between">
+              <div>
+                <b class="text-white">Teesta Stage 3 River Span</b>
+                <p class="text-[10px] text-rose-400">Emergency Bailey Bridge • Heavy vehicles restricted</p>
+              </div>
+              <span class="badge-pill badge-critical text-[10px]">Restricted</span>
+            </div>
+            <div class="p-2.5 bg-slate-950/60 border border-slate-800 rounded-lg flex items-center justify-between">
+              <div>
+                <b class="text-white">Irang Bridge (NH-37 Tamenglong)</b>
+                <p class="text-[10px] text-amber-400">Tilt sensor monitoring active (58/100)</p>
+              </div>
+              <span class="badge-pill badge-warning text-[10px]">Caution</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: AI DISRUPTION & ROUTING ENGINE -->
+      <div id="tab-panel-ai-route" class="tab-content-panel hidden p-4 flex-1 overflow-y-auto space-y-4">
+        <div>
+          <h3 class="font-bold text-sm text-cyan-300 mb-1" data-i18n="routeEngineTitle">AI Terrain-Aware Multi-Modal Route Optimizer</h3>
+          <p class="text-xs text-gray-400">Predicts landslide hazard indices ($LHI$), flood inundations, and computes safe mountain detours.</p>
+        </div>
+
+        <div class="space-y-3 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-xs">
+          <div>
+            <label class="block text-gray-400 mb-1" data-i18n="originLabel">Origin Hub</label>
+            <select id="route-origin-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500"></select>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 mb-1" data-i18n="destinationLabel">Destination District</label>
+            <select id="route-dest-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500"></select>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 mb-1" data-i18n="cargoTypeLabel">Cargo Priority</label>
+            <select id="route-cargo-priority" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500">
+              <option value="medicine">💉 Medical & Vaccine Cold-Chain (Highest Priority)</option>
+              <option value="food">🌾 Food Grains / Essential PDS</option>
+              <option value="fuel">⛽ Petroleum & LPG Tankers (Hazmat)</option>
+              <option value="relief">🏕️ Disaster Relief & Shelter Materials</option>
+            </select>
+          </div>
+
+          <button id="btn-calculate-route" class="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-bold rounded-lg shadow-lg shadow-cyan-900/30 transition transform active:scale-95 text-xs flex items-center justify-center gap-2">
+            🤖 <span data-i18n="calculateRouteBtn">Calculate AI Disruption-Proof Route</span>
+          </button>
+        </div>
+
+        <!-- Route Comparison Output (Rendered dynamically) -->
+        <div id="route-comparison-result" class="hidden"></div>
+      </div>
+
+      <!-- TAB 3: ESSENTIAL FLEET GPS & TELEMETRY -->
+      <div id="tab-panel-fleet" class="tab-content-panel hidden p-4 flex-1 overflow-y-auto space-y-4">
+        <div>
+          <h3 class="font-bold text-sm text-cyan-300 mb-1" data-i18n="fleetTrackerTitle">Live GPS Telemetry & Supply Convoys</h3>
+          <p class="text-xs text-gray-400">Monitoring real-time altitude profiles, cold-chain sensor telemetry, and ETA predictions.</p>
+        </div>
+
+        <!-- Telemetry HUD Card -->
+        <div id="convoy-telemetry-hud"></div>
+
+        <!-- Convoy List -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-xs text-gray-300 uppercase tracking-wider" data-i18n="activeVehicles">Active Convoys in Transit</h4>
+          <div id="fleet-list-container" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- TAB 4: FIELD INCIDENT REPORTING (OFFLINE-FIRST) -->
+      <div id="tab-panel-incident" class="tab-content-panel hidden p-4 flex-1 overflow-y-auto space-y-4">
+        <div>
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-cyan-300" data-i18n="incidentFormTitle">Field Official & Citizen Incident Submission</h3>
+            <span class="text-xs font-mono text-amber-400 bg-amber-950/60 border border-amber-800 px-2 py-0.5 rounded">
+              Queued: <b id="pending-reports-count">0</b>
+            </span>
+          </div>
+          <p class="text-xs text-gray-400 mt-1" data-i18n="incidentSubtext">Geo-tagged reports sync automatically when network connectivity is detected.</p>
+        </div>
+
+        <form id="field-incident-form" class="space-y-3 bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-xs">
+          <div>
+            <label class="block text-gray-400 mb-1">Reporter Name / Official ID</label>
+            <input type="text" id="incident-reporter-name" placeholder="e.g. Officer T. Norbu (BRO Sector 4)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-gray-400 mb-1" data-i18n="incidentType">Incident Type</label>
+              <select id="incident-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500">
+                <option value="Landslide & Rockfall">🪨 Landslide & Rockfall</option>
+                <option value="Flood Inundation">🌊 Flash Flood / River Inundation</option>
+                <option value="Bridge Damage / Collapse">🌉 Bridge Damage / Washout</option>
+                <option value="Road Sinking / Crack">🚧 Road Sinking / Subsidence</option>
+                <option value="Snow / Sleet Slush">❄️ Snow & Ice Blockade</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-gray-400 mb-1" data-i18n="severityLevel">Severity Level</label>
+              <select id="incident-severity" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500">
+                <option value="critical">🔴 Critical (Total Blockade)</option>
+                <option value="high">🟠 High (Single Lane Only)</option>
+                <option value="warning">🟡 Warning (Slow Transit)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-gray-400" data-i18n="coordinates">GPS Coordinates (Click on Map or Auto-Detect)</label>
+              <button type="button" id="btn-detect-gps" class="text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1">
+                📍 Auto GPS
+              </button>
+            </div>
+            <input type="text" id="incident-coords" placeholder="e.g. 27.5050, 92.0950" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono focus:outline-none focus:border-cyan-500">
+          </div>
+
+          <div>
+            <label class="block text-gray-400 mb-1" data-i18n="incidentDesc">Field Observations / Clearance Estimate</label>
+            <textarea id="incident-desc" rows="3" placeholder="Describe extent of blockage, estimated debris volume, alternative local bypass..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:border-cyan-500"></textarea>
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <button type="submit" class="flex-1 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg transition text-xs shadow-lg shadow-cyan-900/30">
+              📝 <span data-i18n="submitReportBtn">Submit Incident Report</span>
+            </button>
+            <button type="button" id="btn-manual-sync" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-gray-300 rounded-lg border border-slate-700 transition text-xs">
+              🔄 Sync Now
+            </button>
+          </div>
+        </form>
+
+        <!-- Offline Queue Status List -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-xs text-gray-300 uppercase tracking-wider">Locally Stored Offline Reports (IndexedDB)</h4>
+          <div id="pending-queue-list" class="space-y-1.5"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: CORRIDOR ALERTS & EMERGENCY SOS -->
+      <div id="tab-panel-alerts" class="tab-content-panel hidden p-4 flex-1 overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-sm text-cyan-300" data-i18n="alertsTitle">Real-Time Emergency Corridor Disruption Broadcast</h3>
+            <p class="text-xs text-gray-400">High-priority alerts for transport operators and district administrations.</p>
+          </div>
+          <button id="btn-trigger-emergency-broadcast" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-rose-900/30 transition flex items-center gap-1">
+            🚨 Broadcast SOS
+          </button>
+        </div>
+
+        <!-- Alert Feed Container -->
+        <div id="alerts-feed-container" class="space-y-3"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-notification-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/gis-map.js"></script>
+  <script src="js/ai-prediction.js"></script>
+  <script src="js/fleet-tracker.js"></script>
+  <script src="js/incident-reporter.js"></script>
+  <script src="js/alerts-manager.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- SERVICE WORKER REGISTRATION (PWA Support) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('🛡️ Service Worker registered for offline PWA capability:', reg.scope))
+          .catch(err => console.log('⚠️ Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
