@@ -64,19 +64,184 @@ class NER_App {
     console.log("✅ Jeevan Setu Command Center fully operational with Mobile Responsive Layout & APIs.");
   }
 
-  toggleMobileDrawer(open) {
-    const drawer = document.getElementById('mobile-drawer');
-    const overlay = document.getElementById('mobile-drawer-overlay');
-
-    if (!drawer || !overlay) return;
-
-    if (open) {
-      drawer.classList.remove('-translate-x-full');
-      overlay.classList.remove('hidden');
-    } else {
-      drawer.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
+  openAlertsModal() {
+    let modal = document.getElementById('view-all-alerts-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-all-alerts-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
     }
+
+    const incidents = window.NER_CONFIG.incidents || [];
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <h3 class="font-extrabold text-sm text-slate-900">🚨 All Active Regional Alerts & Incidents (${incidents.length})</h3>
+          </div>
+          <button onclick="document.getElementById('view-all-alerts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
+          ${incidents.map(inc => `
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 hover:border-slate-300 transition">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-900 text-xs">${inc.title}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${inc.severity === 'critical' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">${inc.severity.toUpperCase()}</span>
+              </div>
+              <p class="text-[11px] text-cyan-700 font-medium">📍 Location: ${inc.locationName}</p>
+              <p class="text-[11px] text-slate-600">${inc.details || 'Active monitoring by SDRF/BRO teams.'}</p>
+              <div class="flex items-center justify-between pt-1 text-[10px] text-slate-400 font-mono">
+                <span>Reported: ${inc.reportedAt}</span>
+                <button onclick="document.getElementById('view-all-alerts-modal').classList.add('hidden'); window.app.gisMap.flyToLocation([${inc.coords[0]}, ${inc.coords[1]}], 12)" class="text-indigo-600 font-bold hover:underline">📍 Fly to Map Location</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  openWeatherModal() {
+    let modal = document.getElementById('view-all-weather-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-all-weather-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    const locations = [
+      { name: "Shillong, Meghalaya", coords: [25.5788, 91.8933] },
+      { name: "Guwahati, Assam", coords: [26.1445, 91.7362] },
+      { name: "Tawang, Arunachal", coords: [27.5861, 91.8594] },
+      { name: "Gangtok, Sikkim", coords: [27.3389, 88.6065] },
+      { name: "Imphal, Manipur", coords: [24.8170, 93.9368] },
+      { name: "Aizawl, Mizoram", coords: [23.7271, 92.7176] },
+      { name: "Kohima, Nagaland", coords: [25.6751, 94.1086] },
+      { name: "Agartala, Tripura", coords: [23.8315, 91.2868] }
+    ];
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🌧️</span>
+            <h3 class="font-extrabold text-sm text-slate-900">Live Satellite Weather Across All 8 North Eastern States</h3>
+          </div>
+          <button onclick="document.getElementById('view-all-weather-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 flex-1 text-xs">
+          ${locations.map(loc => `
+            <div onclick="window.weatherAPI.fetchRealTimeWeather(${loc.coords[0]}, ${loc.coords[1]}, '${loc.name}'); document.getElementById('view-all-weather-modal').classList.add('hidden')" 
+                 class="p-3 bg-slate-50 hover:bg-cyan-50/60 border border-slate-200 rounded-xl cursor-pointer transition space-y-1">
+              <b class="text-slate-900 text-xs block truncate">${loc.name}</b>
+              <span class="text-[10px] text-cyan-600 font-semibold block">Click to inspect on map ➔</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  openDeliveriesModal() {
+    let modal = document.getElementById('view-all-deliveries-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-all-deliveries-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📦</span>
+            <h3 class="font-extrabold text-sm text-slate-900">Regional Essential Goods Delivery Ledger (367 Shipments)</h3>
+          </div>
+          <button onclick="document.getElementById('view-all-deliveries-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-2 flex-1 text-xs">
+          <div class="grid grid-cols-4 font-bold text-slate-500 border-b border-slate-200 pb-2 text-[10px]">
+            <span>Shipment ID</span>
+            <span>Cargo Category</span>
+            <span>Route</span>
+            <span>Status</span>
+          </div>
+          <div class="grid grid-cols-4 text-slate-800 py-1.5 border-b border-slate-100 text-[11px] items-center">
+            <span class="font-mono font-bold">DEL-9841</span><span>Vaccines & Insulin</span><span>Guwahati ➔ Tawang</span><span class="text-emerald-600 font-bold">● Delivered</span>
+          </div>
+          <div class="grid grid-cols-4 text-slate-800 py-1.5 border-b border-slate-100 text-[11px] items-center">
+            <span class="font-mono font-bold">DEL-9842</span><span>Rice & Wheat (FCI)</span><span>Silchar ➔ Aizawl</span><span class="text-amber-600 font-bold">● In Transit</span>
+          </div>
+          <div class="grid grid-cols-4 text-slate-800 py-1.5 border-b border-slate-100 text-[11px] items-center">
+            <span class="font-mono font-bold">DEL-9843</span><span>Diesel & Petrol</span><span>Numaligarh ➔ Imphal</span><span class="text-amber-600 font-bold">● In Transit</span>
+          </div>
+          <div class="grid grid-cols-4 text-slate-800 py-1.5 border-b border-slate-100 text-[11px] items-center">
+            <span class="font-mono font-bold">DEL-9844</span><span>Shelter Tarpaulins</span><span>Jorhat ➔ Mangan</span><span class="text-rose-600 font-bold">● Scheduled</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  openVehiclesModal() {
+    let modal = document.getElementById('view-all-vehicles-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-all-vehicles-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    const convoys = window.NER_CONFIG.convoys || [];
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🚛</span>
+            <h3 class="font-extrabold text-sm text-slate-900">Active Supply Convoys & Fleet Telemetry</h3>
+          </div>
+          <button onclick="document.getElementById('view-all-vehicles-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
+          ${convoys.map(c => `
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+              <div class="flex items-center justify-between">
+                <b class="text-slate-900 text-xs font-mono">${c.id} (${c.type})</b>
+                <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold text-[10px] border border-emerald-200">Speed: ${c.speedKmH} km/h</span>
+              </div>
+              <p class="text-[11px] text-slate-600">Route: <b>${c.route}</b> | Cargo: <b>${c.cargo}</b></p>
+              <p class="text-[10px] text-slate-500 font-mono">Cold-Chain Temp: ${c.coldChainTempC || 'Ambient'}°C | ETA: ${c.etaHrs} hrs</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  openDisruptedRoutesModal() {
+    this.openAlertsModal();
+  }
+
+  openSuppliesModal() {
+    this.openDeliveriesModal();
   }
 
   async handleWeatherLocationChange(value) {
