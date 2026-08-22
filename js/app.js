@@ -240,6 +240,155 @@ class NER_App {
     this.openAlertsModal();
   }
 
+  openAnalyticsModal() {
+    let modal = document.getElementById('view-analytics-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-analytics-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📈</span>
+            <h3 class="font-extrabold text-sm text-slate-900">Regional Analytics, Performance Reports & AI Vulnerability Matrix</h3>
+          </div>
+          <button onclick="document.getElementById('view-analytics-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-4 flex-1 text-xs">
+          <div class="grid grid-cols-3 gap-3">
+            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+              <span class="text-[10px] text-emerald-700 font-bold uppercase">Delivery Success Rate</span>
+              <div class="text-2xl font-black text-emerald-800 font-mono mt-1">94.2%</div>
+              <span class="text-[10px] text-emerald-600">↑ +3.8% from last month</span>
+            </div>
+            <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl text-center">
+              <span class="text-[10px] text-cyan-700 font-bold uppercase">Avg Transit Delay Reduction</span>
+              <div class="text-2xl font-black text-cyan-800 font-mono mt-1">-35.4%</div>
+              <span class="text-[10px] text-cyan-600">Via AI Dynamic Rerouting</span>
+            </div>
+            <div class="p-3 bg-purple-50 border border-purple-200 rounded-xl text-center">
+              <span class="text-[10px] text-purple-700 font-bold uppercase">High Risk Corridors</span>
+              <div class="text-2xl font-black text-purple-800 font-mono mt-1">3 / 28</div>
+              <span class="text-[10px] text-purple-600">NH-29, SH-10, Sonapur</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <b class="text-slate-900 text-xs block">Top Vulnerable Districts (Monsoon Risk Index):</b>
+            <div class="space-y-1.5 text-[11px]">
+              <div class="flex justify-between items-center">
+                <span>1. East Khasi Hills (Meghalaya)</span>
+                <span class="text-rose-600 font-bold font-mono">Risk Index: 88/100 (Critical)</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>2. North Sikkim / Mangan (Sikkim)</span>
+                <span class="text-rose-600 font-bold font-mono">Risk Index: 82/100 (High)</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>3. Dima Hasao / Haflong (Assam)</span>
+                <span class="text-amber-600 font-bold font-mono">Risk Index: 74/100 (Medium)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  openGovDashboardModal() {
+    let modal = document.getElementById('view-gov-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-gov-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🏛️</span>
+            <h3 class="font-extrabold text-sm text-white">Government of India - Executive Nodal Command (MoDoNER & NEC)</h3>
+          </div>
+          <button onclick="document.getElementById('view-gov-modal').classList.add('hidden')" class="text-slate-400 hover:text-white text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-3 flex-1 text-xs text-slate-800">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <b class="text-slate-900 text-xs">Executive Readiness Overview:</b>
+            <p class="text-slate-600 leading-relaxed">
+              All 8 North Eastern States (Assam, Meghalaya, Arunachal Pradesh, Sikkim, Manipur, Mizoram, Nagaland, Tripura) are connected with live satellite telemetry and automated disaster response queues.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
+            <div class="p-2 bg-slate-100 rounded-lg"><span class="text-slate-500 block">SDRF Convoys:</span><b class="text-emerald-700 font-mono">48 Active</b></div>
+            <div class="p-2 bg-slate-100 rounded-lg"><span class="text-slate-500 block">BRO Clearance Teams:</span><b class="text-cyan-700 font-mono">14 Mobilized</b></div>
+            <div class="p-2 bg-slate-100 rounded-lg"><span class="text-slate-500 block">Cold-Chain Storage:</span><b class="text-emerald-700 font-mono">100% Operational</b></div>
+            <div class="p-2 bg-slate-100 rounded-lg"><span class="text-slate-500 block">Emergency SOS Status:</span><b class="text-slate-700 font-mono">Standby</b></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
+  openSettingsModal() {
+    let modal = document.getElementById('view-settings-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-settings-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    const currentKey = localStorage.getItem('gemini_api_key') || '';
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="text-base">⚙️</span>
+            <h3 class="font-extrabold text-sm text-slate-900">System Preferences & API Configurations</h3>
+          </div>
+          <button onclick="document.getElementById('view-settings-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-800 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-4 overflow-y-auto space-y-4 flex-1 text-xs text-slate-800">
+          <div class="space-y-1.5">
+            <label class="font-bold text-slate-900 block">Google Gemini API Key (Optional Live AI Key):</label>
+            <input type="password" id="gemini-key-input" value="${currentKey}" placeholder="AIzaSy..." 
+                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800">
+            <p class="text-[10px] text-slate-500">Leave blank to use Jeevan AI built-in zero-key high-intelligence engine.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="font-bold text-slate-900 block">Offline Cache & Database Reset:</label>
+            <button onclick="localStorage.clear(); window.location.reload()" class="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 rounded-xl text-xs transition">
+              🗑️ Clear Local Cache & Reset PWA Storage
+            </button>
+          </div>
+
+          <button onclick="localStorage.setItem('gemini_api_key', document.getElementById('gemini-key-input').value.trim()); document.getElementById('view-settings-modal').classList.add('hidden'); window.app.showNotification('✅ Settings & API Configurations Saved!', 'success')" 
+                  class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow transition">
+            Save Settings & Close
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+  }
+
   openProfileModal() {
     let modal = document.getElementById('view-officer-profile-modal');
     if (!modal) {
@@ -363,20 +512,15 @@ class NER_App {
   switchView(viewName) {
     this.currentView = viewName;
 
-    // Update Sidebar Active state
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.toggle('active', item.getAttribute('data-view') === viewName);
+    // Highlight active nav item
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.classList.remove('active');
+      if (el.getAttribute('data-view') === viewName) {
+        el.classList.add('active');
+      }
     });
 
     // Handle view actions
-    if (viewName === 'gis') {
-      this.gisMap.map.flyTo([26.2006, 92.9376], 8, { duration: 1.5 });
-      this.showNotification("🗺️ Full GIS Map view activated. Click any highway or district marker.", "info");
-    } else if (viewName === 'road-accessibility') {
-      this.gisMap.flyToLocation([25.6300, 94.1200], 9);
-      this.showNotification("🚧 Highlighting disrupted highways (NH-29, SH-10, NH-6).", "warning");
-    } else if (viewName === 'vehicles') {
-      if (this.fleetTracker && this.fleetTracker.convoys.length > 0) {
         this.fleetTracker.focusActiveConvoy();
       }
       this.showNotification("🚛 Centered on Live GPS Supply Convoys.", "info");
