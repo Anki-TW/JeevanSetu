@@ -25,14 +25,21 @@ The North Eastern Region (NER) of India—spanning 8 states (**Assam, Arunachal 
 
 ---
 
-## 🌿 Git Branching Structure
+## 🌿 Git Branching Structure (10 Core Feature Tracks)
 
-- **`main`**: Production-ready platform release, GitHub Pages configuration, and complete architecture documentation.
-- **`feature/gis-accessibility-dashboard`**: 8 NER states terrain mapping, district connectivity statuses (Normal / Warning / Cut-off), bridge health, and live weather overlays.
-- **`feature/ai-disruption-routing`**: AI/ML Landslide & Flood risk engine, terrain-aware alternate route recommendations, and delay estimators.
-- **`feature/fleet-supply-tracking`**: Real-time GPS convoy tracking for essential goods (medicines, vaccines cold-chain, food, fuel) with telemetry HUD.
-- **`feature/field-incident-reporting`**: Offline-first PWA incident reporting (IndexedDB storage & auto-sync upon reconnection, geo-tagged photos, crowd-sourcing).
-- **`feature/alerts-multilingual`**: High-risk corridor alerts, SOS emergency broadcast, and regional language localization (English, Assamese, Bengali, Hindi, Manipuri).
+| # | Feature Track | Branch Name | Description |
+|---|---|---|---|
+| 1 | 🗺️ **GIS & Interactive Map** | `feature/gis-interactive-map` | Multi-layer Leaflet GIS, OpenTopoMap terrain contours, satellite/tactical dark tiles, coordinate overlays. |
+| 2 | 🚧 **Road & Accessibility Monitoring** | `feature/road-accessibility-monitoring` | District-level connectivity status, bridge structural health indices, mountain pass blockages. |
+| 3 | 🚛 **Vehicle & Logistics Tracking** | `feature/vehicle-logistics-tracking` | Real-time GPS telemetry, vehicle altitude profile, speed monitoring, and geofencing. |
+| 4 | 📦 **Delivery Management** | `feature/delivery-management` | End-to-end dispatch, dynamic ETA calculation, delay prediction, and route progress milestones. |
+| 5 | 🚨 **Alert & Notification System** | `feature/alert-notification-system` | Emergency corridor alerts, SMS/SOS broadcasts, real-time push alerts to district authorities. |
+| 6 | 🌧️ **Weather Intelligence** | `feature/weather-intelligence` | Live precipitation radar overlays, monsoon flood warnings, and landslide hazard indices ($LHI$). |
+| 7 | 📊 **Government/Admin Dashboard** | `feature/gov-admin-dashboard` | Command center for SEOC/State Disaster Management, district DM/SDM views, and live KPI feeds. |
+| 8 | 📈 **Analytics & Reports** | `feature/analytics-reports` | Supply chain bottleneck heatmaps, vulnerability index reports, historical disruption analytics. |
+| 9 | 🏥 **Essential Supply Priority** | `feature/essential-supply-priority` | Vaccine/medicine cold-chain temperature telemetry (2-8°C), PDS food grain fleets, fuel/POL tankers. |
+| 10 | 🔌 **API Integrations** | `feature/api-integrations` | External connectors for Weather APIs, Transport/Road DBs, GIS services, and Disaster Management systems. |
+
 
 ---
 
