@@ -1,17 +1,18 @@
 /**
- * Service Worker for Jeevan Setu - NER Logistics AI Platform
- * Version: v2.0 (Forces Cache Bust for New Jeevan Setu UI)
+ * Jeevan Setu - Progressive Web App (PWA) Service Worker
+ * Automatic Cache Purge Engine v10.0
  */
 
-const CACHE_NAME = 'jeevan-setu-ner-v2';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'jeevan-setu-v10';
+const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
   './css/styles.css',
   './js/config.js',
-  './js/i18n.js',
   './js/weather-api.js',
+  './js/geocoding-api.js',
+  './js/ai-assistant.js',
+  './js/osrm-routing-api.js',
   './js/gis-map.js',
   './js/ai-prediction.js',
   './js/fleet-tracker.js',
@@ -22,50 +23,43 @@ const ASSETS_TO_CACHE = [
 
 // Install Event
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📦 Caching Jeevan Setu v2 assets...');
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS);
     })
   );
-  self.skipWaiting();
 });
 
-// Activate Event (Purge old v1 caches)
+// Activate Event - Auto Purge Old Caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('🧹 Purging old cache version:', key);
-            return caches.delete(key);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('🗑️ Purging old PWA cache:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 // Fetch Event
 self.addEventListener('fetch', (event) => {
-  if (event.request.url.includes('tile.opentopomap.org') || event.request.url.includes('basemaps.cartocdn.com') || event.request.url.includes('open-meteo.com')) {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
-    return;
-  }
-
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         return networkResponse;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
