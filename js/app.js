@@ -240,8 +240,64 @@ class NER_App {
     this.openAlertsModal();
   }
 
-  openSuppliesModal() {
-    this.openDeliveriesModal();
+  openProfileModal() {
+    let modal = document.getElementById('view-officer-profile-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'view-officer-profile-modal';
+      modal.className = 'fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full bg-emerald-500 text-slate-950 font-black text-sm flex items-center justify-center shadow">
+              AO
+            </div>
+            <div>
+              <h3 class="font-extrabold text-sm text-white">Admin Officer (MDONER)</h3>
+              <p class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Ministry of Development of North Eastern Region</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('view-officer-profile-modal').classList.add('hidden')" class="text-slate-400 hover:text-white text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="p-5 space-y-4 text-xs text-slate-800">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium">Nodal Agency:</span>
+              <b class="text-slate-900 font-bold">MoDoNER / Govt of India</b>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium">Security Clearance:</span>
+              <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px] border border-emerald-200">Level 1 - Executive Command</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium">Regional Jurisdiction:</span>
+              <b class="text-indigo-700 font-bold">8 North Eastern States (25+ Districts)</b>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <b class="text-xs text-slate-900 block">Administrative Privileges:</b>
+            <ul class="space-y-1 text-[11px] text-slate-600 list-disc pl-4">
+              <li>Authorize priority clearance for medical & food convoys</li>
+              <li>Issue Emergency SOS Broadcasts to State Disaster Management Authorities</li>
+              <li>Inspect real-time vehicle GPS & cold-chain temperature telemetry</li>
+              <li>Access AI Geotechnical Landslide & Flood Hazard Indices</li>
+            </ul>
+          </div>
+
+          <button onclick="document.getElementById('view-officer-profile-modal').classList.add('hidden'); window.app.showNotification('✅ Admin Credentials Authenticated - Session Active', 'success')" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow transition">
+            Close & Return to Command Center
+          </button>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
   }
 
   async handleWeatherLocationChange(value) {
