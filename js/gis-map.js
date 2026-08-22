@@ -1,13 +1,17 @@
 /**
- * GIS Mapping & Spatial Analytics Engine for North Eastern Region (NER)
- * Uses Leaflet.js with Multiple Base Maps (Terrain, Dark Tactical, OpenStreetMap)
- * Layers: Highway Polylines, District Status Choropleth, Bridges, Fleet GPS, Incidents, Radar
+ * GIS Mapping & Spatial Analytics Engine for Jeevan Setu (North Eastern Region)
+ * Supported Base Maps:
+ * 1. Terrain Contours (Topo) - OpenTopoMap
+ * 2. Tactical Dark - CartoDB Dark Matter
+ * 3. Standard OSM - OpenStreetMap
+ * 4. Satellite Imagery - Esri World Imagery
  */
 
 class NER_GISMap {
   constructor(mapContainerId) {
     this.containerId = mapContainerId;
     this.map = null;
+    this.currentBaseMapName = 'Terrain Contours (Topo)';
     this.layers = {
       baseMaps: {},
       highways: null,
@@ -30,16 +34,13 @@ class NER_GISMap {
 
     // Initialize Map with custom options
     this.map = L.map(this.containerId, {
-      center: config.center,
-      zoom: config.defaultZoom,
+      center: [26.4, 93.0],
+      zoom: 7,
       minZoom: 6,
-      maxZoom: 16,
+      maxZoom: 17,
       zoomControl: false,
       attributionControl: false
     });
-
-    // Add Zoom Control to Top Right
-    L.control.zoom({ position: 'topright' }).addTo(this.map);
 
     // Setup Base Maps
     this.setupBaseLayers();
@@ -53,7 +54,7 @@ class NER_GISMap {
     this.layers.weatherRadar = L.layerGroup().addTo(this.map);
     this.layers.activeRoute = L.layerGroup().addTo(this.map);
 
-    // Render Data
+    // Render Geographic Data
     this.renderHighways();
     this.renderDistricts();
     this.renderBridges();
@@ -61,53 +62,99 @@ class NER_GISMap {
     this.renderIncidentMarkers();
     this.renderWeatherRadar();
 
-    // Map Click Listener to help field reporting
+    // Map Click Listener
     this.map.on('click', (e) => {
       const lat = e.latlng.lat.toFixed(4);
       const lng = e.latlng.lng.toFixed(4);
-      const coordInput = document.getElementById('incident-coords');
-      if (coordInput) {
-        coordInput.value = `${lat}, ${lng}`;
-        if (window.app) {
-          window.app.showNotification(`📍 Coordinates selected from map: ${lat}, ${lng}`, 'info');
-        }
+      if (window.app) {
+        window.app.showNotification(`📍 Map Click: ${lat}° N, ${lng}° E`, 'info');
       }
     });
 
-    console.log("🗺️ NER GIS Engine successfully initialized.");
+    // Ensure Leaflet recalculates layout size
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 200);
+
+    console.log("🗺️ Jeevan Setu GIS Engine successfully initialized with Topo, Tactical Dark & OSM.");
   }
 
   setupBaseLayers() {
-    // 1. Dark Tactical Map (CartoDB Dark Matter)
+    // 1. OpenTopoMap (Terrain Contours for Himalayan Hills)
+    const openTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      subdomains: 'abc'
+    });
+
+    // 2. Tactical Dark (CartoDB Dark Matter)
     const darkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       subdomains: 'abcd'
     });
 
-    // 2. OpenTopoMap (Terrain & Mountain Contours for NER Hills)
-    const openTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17
-    });
-
-    // 3. OpenStreetMap Standard
+    // 3. Standard OpenStreetMap
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19
     });
 
-    // Default to Dark Matter for Tactical Control Center look
-    darkMatter.addTo(this.map);
+    // 4. Satellite Imagery (Esri World Imagery)
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18
+    });
 
     this.layers.baseMaps = {
-      "Tactical Dark": darkMatter,
       "Terrain Contours (Topo)": openTopo,
-      "Standard OSM": osm
+      "Tactical Dark": darkMatter,
+      "Standard OSM": osm,
+      "Satellite Imagery": satellite
     };
+
+    // Default to Terrain Topo as in screenshot
+    openTopo.addTo(this.map);
   }
 
   setBaseMap(layerName) {
-    Object.values(this.layers.baseMaps).forEach(layer => this.map.removeLayer(layer));
-    if (this.layers.baseMaps[layerName]) {
-      this.layers.baseMaps[layerName].addTo(this.map);
+    if (!this.layers.baseMaps[layerName]) return;
+
+    this.currentBaseMapName = layerName;
+
+    // Remove current base layers
+    Object.values(this.layers.baseMaps).forEach(layer => {
+      if (this.map.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+    // Add selected layer
+    this.layers.baseMaps[layerName].addTo(this.map);
+
+    // Sync Dropdown
+    const selector = document.getElementById('basemap-selector');
+    if (selector) selector.value = layerName;
+
+    // Sync Top Header Button States
+    const btnTopo = document.getElementById('btn-bm-topo');
+    const btnDark = document.getElementById('btn-bm-dark');
+    const btnOsm = document.getElementById('btn-bm-osm');
+
+    if (btnTopo && btnDark && btnOsm) {
+      [btnTopo, btnDark, btnOsm].forEach(b => {
+        b.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:bg-white transition flex items-center gap-1";
+      });
+
+      if (layerName === 'Terrain Contours (Topo)') {
+        btnTopo.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-700 hover:bg-white transition flex items-center gap-1 bg-white shadow-xs";
+      } else if (layerName === 'Tactical Dark') {
+        btnDark.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-700 hover:bg-white transition flex items-center gap-1 bg-white shadow-xs";
+      } else if (layerName === 'Standard OSM') {
+        btnOsm.className = "px-2.5 py-1 rounded-lg font-semibold text-slate-700 hover:bg-white transition flex items-center gap-1 bg-white shadow-xs";
+      }
+    }
+
+    if (window.app) {
+      window.app.showNotification(`🗺️ Map style changed to ${layerName}`, 'info');
     }
   }
 
@@ -117,10 +164,10 @@ class NER_GISMap {
 
     highways.forEach(hw => {
       // Glow polyline underlay
-      const glowLine = L.polyline(hw.path, {
+      L.polyline(hw.path, {
         color: hw.color,
-        weight: 8,
-        opacity: 0.35,
+        weight: 6,
+        opacity: 0.45,
         smoothFactor: 1
       }).addTo(this.layers.highways);
 
@@ -132,15 +179,14 @@ class NER_GISMap {
         dashArray: hw.riskLevel === 'Critical' ? '8, 8' : null
       }).addTo(this.layers.highways);
 
-      // Popup
       line.bindPopup(`
-        <div class="p-3">
+        <div class="p-3 font-sans">
           <div class="flex items-center gap-2 mb-1">
             <span class="w-3 h-3 rounded-full" style="background-color: ${hw.color}"></span>
             <h4 class="font-bold text-sm text-cyan-400">${hw.name}</h4>
           </div>
           <p class="text-xs text-gray-300 mb-2"><b>Status:</b> ${hw.status}</p>
-          <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-900/80 p-2 rounded border border-slate-700/50">
+          <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-900 p-2 rounded border border-slate-700">
             <div><span class="text-gray-400">Length:</span> <b class="text-white">${hw.lengthKm} km</b></div>
             <div><span class="text-gray-400">Avg Speed:</span> <b class="text-white">${hw.avgSpeedKmH} km/h</b></div>
             <div class="col-span-2"><span class="text-gray-400">Risk Assessment:</span> <b class="${hw.riskLevel === 'Critical' ? 'text-rose-400 font-bold' : hw.riskLevel === 'High' ? 'text-amber-400' : 'text-emerald-400'}">${hw.riskLevel}</b></div>
@@ -155,28 +201,22 @@ class NER_GISMap {
     const districts = window.NER_CONFIG.districts;
 
     districts.forEach(district => {
-      let fillColor = '#10b981'; // Green
+      let fillColor = '#10b981';
       let strokeColor = '#34d399';
-      let statusLabel = 'Normal Access';
-      let badgeClass = 'badge-normal';
 
       if (district.status === 'warning') {
-        fillColor = '#f59e0b'; // Amber
+        fillColor = '#f59e0b';
         strokeColor = '#fbbf24';
-        statusLabel = 'Restricted / Caution';
-        badgeClass = 'badge-warning';
       } else if (district.status === 'critical') {
-        fillColor = '#f43f5e'; // Rose
-        strokeColor = '#fb7185';
-        statusLabel = 'Severe Disruption / Cut-Off';
-        badgeClass = 'badge-critical';
+        fillColor = '#ef4444';
+        strokeColor = '#f87171';
       }
 
       // Circle representing accessibility zone
       const circle = L.circle(district.coords, {
-        radius: district.logisticsHub ? 16000 : 12000,
+        radius: district.logisticsHub ? 15000 : 10000,
         fillColor: fillColor,
-        fillOpacity: 0.22,
+        fillOpacity: 0.25,
         color: strokeColor,
         weight: district.status === 'critical' ? 2.5 : 1.5,
         dashArray: district.status === 'critical' ? '4, 4' : null
@@ -186,69 +226,15 @@ class NER_GISMap {
       const centerMarker = L.circleMarker(district.coords, {
         radius: district.logisticsHub ? 6 : 4,
         fillColor: fillColor,
-        fillOpacity: 0.9,
+        fillOpacity: 0.95,
         color: '#ffffff',
-        weight: 1.5
+        weight: 2
       }).addTo(this.layers.districts);
 
-      // District Tooltip
       centerMarker.bindTooltip(`<b>${district.name}</b> (${district.state})`, {
         permanent: false,
         className: 'custom-leaflet-tooltip'
       });
-
-      // Comprehensive District Inspection Popup
-      const popupContent = `
-        <div class="p-3 min-w-[260px]">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <h4 class="font-bold text-sm text-white">${district.name}</h4>
-            <span class="badge-pill ${badgeClass} text-[10px]">${statusLabel}</span>
-          </div>
-          <p class="text-[11px] text-gray-400 mb-2">State: <b class="text-gray-200">${district.state}</b></p>
-          
-          <div class="space-y-1.5 text-xs bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 mb-2">
-            <div class="flex justify-between">
-              <span class="text-gray-400">Vulnerability Index:</span>
-              <b class="${district.vulnerabilityScore > 75 ? 'text-rose-400 font-bold' : district.vulnerabilityScore > 50 ? 'text-amber-400' : 'text-emerald-400'}">${district.vulnerabilityScore}/100</b>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-400">24h Rainfall:</span>
-              <b class="text-cyan-400 font-mono">${district.rainfall24h} mm</b>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-400">Landslide Risk:</span>
-              <span class="text-[11px] text-gray-200">${district.landslideRisk}</span>
-            </div>
-          </div>
-
-          <div class="text-[11px]">
-            <span class="text-gray-400 font-semibold block mb-1">Essential Stock Remaining:</span>
-            <div class="space-y-1">
-              <div>
-                <div class="flex justify-between text-[10px] mb-0.5">
-                  <span>Medicines / Vaccines:</span>
-                  <span class="font-mono ${district.stockStatus.medicine < 40 ? 'text-rose-400 font-bold' : 'text-emerald-400'}">${district.stockStatus.medicine}%</span>
-                </div>
-                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                  <div class="h-full ${district.stockStatus.medicine < 40 ? 'bg-rose-500' : 'bg-emerald-500'}" style="width: ${district.stockStatus.medicine}%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="flex justify-between text-[10px] mb-0.5">
-                  <span>Food Grains (PDS):</span>
-                  <span class="font-mono ${district.stockStatus.food < 40 ? 'text-rose-400 font-bold' : 'text-emerald-400'}">${district.stockStatus.food}%</span>
-                </div>
-                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                  <div class="h-full ${district.stockStatus.food < 40 ? 'bg-rose-500' : 'bg-amber-500'}" style="width: ${district.stockStatus.food}%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      circle.bindPopup(popupContent);
-      centerMarker.bindPopup(popupContent);
 
       this.markerRefs.districts[district.id] = { circle, centerMarker, coords: district.coords };
     });
@@ -261,7 +247,7 @@ class NER_GISMap {
     bridges.forEach(br => {
       const isDamaged = br.healthIndex < 60;
       const iconHtml = `
-        <div class="w-6 h-6 rounded-full flex items-center justify-center ${isDamaged ? 'bg-rose-600 animate-pulse text-white' : 'bg-indigo-600 text-white'} border border-white/40 shadow-lg text-[10px]">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center ${isDamaged ? 'bg-rose-600 animate-pulse text-white' : 'bg-indigo-600 text-white'} border border-white shadow-lg text-[11px]">
           🌉
         </div>
       `;
@@ -273,20 +259,9 @@ class NER_GISMap {
         iconAnchor: [12, 12]
       });
 
-      const marker = L.marker(br.coords, { icon: customIcon }).addTo(this.layers.bridges);
-      marker.bindPopup(`
-        <div class="p-3">
-          <div class="flex items-center gap-1.5 mb-1">
-            <span class="text-base">🌉</span>
-            <h4 class="font-bold text-xs text-indigo-300">${br.name}</h4>
-          </div>
-          <div class="text-xs space-y-1 bg-slate-900/90 p-2 rounded border border-slate-800">
-            <p><b>Status:</b> <span class="${isDamaged ? 'text-rose-400 font-bold' : 'text-emerald-400'}">${br.status}</span></p>
-            <p><b>Structural Health Index:</b> <b class="font-mono ${isDamaged ? 'text-rose-400' : 'text-emerald-400'}">${br.healthIndex}/100</b></p>
-            <p class="text-[11px] text-gray-300 border-t border-slate-700/50 pt-1 mt-1"><b class="text-cyan-400">Telemetry:</b> ${br.sensorAlert}</p>
-          </div>
-        </div>
-      `);
+      L.marker(br.coords, { icon: customIcon })
+        .bindTooltip(`🌉 <b>${br.name}</b> (${br.status})`, { className: 'custom-leaflet-tooltip' })
+        .addTo(this.layers.bridges);
     });
   }
 
@@ -303,13 +278,10 @@ class NER_GISMap {
       } else if (cnv.cargoType === "fuel") {
         iconEmoji = "⛽";
         bgClass = "bg-amber-600";
-      } else if (cnv.cargoType === "relief") {
-        iconEmoji = "🏕️";
-        bgClass = "bg-emerald-600";
       }
 
       const iconHtml = `
-        <div class="w-8 h-8 rounded-full ${bgClass} flex items-center justify-center text-white border-2 border-white shadow-xl glow-success text-sm cursor-pointer">
+        <div class="w-8 h-8 rounded-full ${bgClass} flex items-center justify-center text-white border-2 border-white shadow-xl text-sm cursor-pointer hover:scale-110 transition">
           ${iconEmoji}
         </div>
       `;
@@ -322,31 +294,7 @@ class NER_GISMap {
       });
 
       const marker = L.marker(cnv.currentCoords, { icon: divIcon }).addTo(this.layers.fleet);
-
-      marker.bindPopup(`
-        <div class="p-3 min-w-[250px]">
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-mono text-xs font-bold text-cyan-400">${cnv.id}</span>
-            <span class="badge-pill badge-normal text-[10px]">Live Telemetry</span>
-          </div>
-          <h4 class="font-bold text-xs text-white mb-1">${cnv.name}</h4>
-          <p class="text-[11px] text-gray-300 mb-2"><b>Cargo:</b> ${cnv.cargo}</p>
-          
-          <div class="grid grid-cols-2 gap-1.5 text-[10px] bg-slate-900/90 p-2 rounded border border-slate-800 mb-2">
-            <div><span class="text-gray-400">Speed:</span> <b class="text-white font-mono">${cnv.speedKmH} km/h</b></div>
-            <div><span class="text-gray-400">Altitude:</span> <b class="text-cyan-400 font-mono">${cnv.altitudeM} m</b></div>
-            <div><span class="text-gray-400">Cargo Temp:</span> <b class="text-rose-400 font-mono">${cnv.cargoTempC} °C</b></div>
-            <div><span class="text-gray-400">Est. ETA:</span> <b class="text-amber-400 font-mono">${cnv.etaMinutes} mins</b></div>
-          </div>
-          
-          <div class="text-[10px] text-gray-300">
-            <p><b>Origin:</b> ${cnv.origin}</p>
-            <p><b>Destination:</b> ${cnv.destination}</p>
-            <p class="text-rose-400 font-semibold mt-1">⚠️ ${cnv.riskLevel}</p>
-          </div>
-        </div>
-      `);
-
+      marker.bindTooltip(`🚚 <b>${cnv.id}</b>: ${cnv.cargo}`, { className: 'custom-leaflet-tooltip' });
       this.markerRefs.convoys[cnv.id] = marker;
     });
   }
@@ -358,7 +306,7 @@ class NER_GISMap {
     incidents.forEach(inc => {
       const isCritical = inc.severity === "critical";
       const iconHtml = `
-        <div class="w-7 h-7 rounded-full ${isCritical ? 'bg-rose-600 glow-danger' : 'bg-amber-600'} flex items-center justify-center text-white border-2 border-white/80 shadow-2xl text-xs cursor-pointer">
+        <div class="w-7 h-7 rounded-full ${isCritical ? 'bg-rose-600 pulse-hazard' : 'bg-amber-600'} flex items-center justify-center text-white border-2 border-white shadow-2xl text-xs cursor-pointer">
           ⚠️
         </div>
       `;
@@ -371,36 +319,18 @@ class NER_GISMap {
       });
 
       const marker = L.marker(inc.coords, { icon: divIcon }).addTo(this.layers.incidents);
-
-      marker.bindPopup(`
-        <div class="p-3 min-w-[260px]">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="font-mono text-[10px] text-rose-400 font-bold">${inc.id}</span>
-            <span class="badge-pill ${isCritical ? 'badge-critical' : 'badge-warning'} text-[10px]">${inc.severity.toUpperCase()}</span>
-          </div>
-          <h4 class="font-bold text-xs text-white mb-1">${inc.title}</h4>
-          <p class="text-[11px] text-cyan-300 mb-1">📍 ${inc.locationName}</p>
-          <p class="text-[11px] text-gray-300 bg-slate-900/90 p-2 rounded border border-slate-800 mb-2">${inc.details}</p>
-          
-          <div class="text-[10px] space-y-1 text-gray-400">
-            <p><b>Reported:</b> ${inc.reportedAt} by <span class="text-gray-200">${inc.reportedBy}</span></p>
-            <p><b>Est. Clearance Time:</b> <b class="text-amber-400 font-mono">${inc.estimatedClearanceHrs} Hours</b></p>
-          </div>
-        </div>
-      `);
-
+      marker.bindTooltip(`⚠️ <b>${inc.title}</b> (${inc.locationName})`, { className: 'custom-leaflet-tooltip' });
       this.markerRefs.incidents[inc.id] = marker;
     });
   }
 
   renderWeatherRadar() {
     this.layers.weatherRadar.clearLayers();
-    // Simulate precipitation radar heat zones over heavy rainfall regions (Cherrapunji, North Sikkim, Dima Hasao, Tawang)
     const radarHotspots = [
-      { center: [25.2700, 91.7300], radius: 45000, color: '#06b6d4', intensity: 'Heavy Monsoon Storm' }, // Sohra / Meghalaya
-      { center: [27.5000, 88.5333], radius: 35000, color: '#3b82f6', intensity: 'Glacial Rain & Cloudburst Risk' }, // Sikkim
-      { center: [25.1764, 93.0238], radius: 38000, color: '#06b6d4', intensity: 'Hill Section Rain Cell' }, // Haflong
-      { center: [27.5861, 91.8594], radius: 30000, color: '#6366f1', intensity: 'Freezing Rain & Sleet' } // Tawang
+      { center: [25.2700, 91.7300], radius: 45000, color: '#0284c7', intensity: 'Heavy Monsoon Storm' },
+      { center: [27.5000, 88.5333], radius: 35000, color: '#2563eb', intensity: 'Glacial Rain & Cloudburst' },
+      { center: [25.1764, 93.0238], radius: 38000, color: '#0284c7', intensity: 'Hill Section Rain' },
+      { center: [27.5861, 91.8594], radius: 30000, color: '#7c3aed', intensity: 'Sleet & Freezing Rain' }
     ];
 
     radarHotspots.forEach(radar => {
@@ -408,7 +338,7 @@ class NER_GISMap {
         radius: radar.radius,
         color: radar.color,
         fillColor: radar.color,
-        fillOpacity: 0.18,
+        fillOpacity: 0.22,
         weight: 1.5,
         dashArray: '5, 5'
       }).bindTooltip(`🌧️ <b>${radar.intensity}</b>`, { className: 'custom-leaflet-tooltip' })
@@ -419,18 +349,14 @@ class NER_GISMap {
   drawRoute(routeGeoJson, isAlternate = false) {
     this.layers.activeRoute.clearLayers();
 
-    // Alternate route line
     const routeLine = L.polyline(routeGeoJson.coordinates, {
-      color: isAlternate ? '#10b981' : '#38bdf8',
+      color: isAlternate ? '#10b981' : '#0284c7',
       weight: 5,
-      opacity: 0.9,
+      opacity: 0.95,
       dashArray: isAlternate ? '8, 4' : null
     }).addTo(this.layers.activeRoute);
 
-    // Zoom map to fit route
     this.map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-
-    console.log(`📍 Plotted ${isAlternate ? 'AI Alternate' : 'Direct'} Route on GIS Canvas.`);
   }
 
   flyToLocation(coords, zoomLevel = 10) {
