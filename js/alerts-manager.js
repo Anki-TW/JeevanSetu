@@ -1,16 +1,66 @@
 /**
  * Corridor Alerts & Emergency Broadcast Manager for North Eastern Region (NER)
  * Dispatches multi-channel alerts (GIS overlay, SMS dispatch, disaster sirens)
+ * Dynamically updates relative time (e.g. 2 min ago -> 3 min ago)
  */
 
 class NER_AlertsManager {
   constructor(gisMap) {
     this.gisMap = gisMap;
     this.alerts = window.NER_CONFIG.incidents;
+    this.timer = null;
   }
 
   init() {
     this.renderAlerts();
+    this.renderRecentAlertsWidget();
+    
+    // Auto-update timestamps every 30 seconds
+    if (this.timer) clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      this.renderRecentAlertsWidget();
+    }, 30000);
+  }
+
+  renderRecentAlertsWidget() {
+    const container = document.getElementById('recent-alerts-widget-list');
+    if (!container) return;
+
+    const topAlerts = this.alerts.slice(0, 4);
+
+    container.innerHTML = topAlerts.map(alert => {
+      let icon = "⚠️";
+      let bgClass = "bg-rose-50/70 border-rose-100 text-rose-700";
+      let iconColor = "text-rose-600";
+
+      if (alert.type.includes("Flood")) {
+        icon = "🌊";
+        bgClass = "bg-cyan-50/70 border-cyan-100 text-cyan-800";
+        iconColor = "text-cyan-600";
+      } else if (alert.type.includes("Bridge") || alert.type.includes("Damage")) {
+        icon = "🚧";
+        bgClass = "bg-amber-50/70 border-amber-100 text-amber-800";
+        iconColor = "text-amber-600";
+      } else if (alert.type.includes("Rain") || alert.type.includes("Snow")) {
+        icon = "🌧️";
+        bgClass = "bg-blue-50/70 border-blue-100 text-blue-800";
+        iconColor = "text-blue-600";
+      }
+
+      return `
+        <div onclick="window.alertsManager.focusAlert('${alert.id}')" 
+             class="flex items-start gap-2.5 p-2 rounded-lg ${bgClass} border cursor-pointer hover:shadow-sm transition">
+          <span class="text-base ${iconColor} shrink-0 mt-0.5">${icon}</span>
+          <div class="flex-1 overflow-hidden">
+            <div class="flex items-center justify-between gap-1">
+              <b class="text-slate-800 truncate text-[11px]">${alert.title}</b>
+              <span class="text-[9px] text-slate-400 font-mono shrink-0">${alert.reportedAt}</span>
+            </div>
+            <p class="text-[10px] text-slate-500 truncate">📍 ${alert.locationName}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   renderAlerts(filterSeverity = 'all') {
@@ -72,7 +122,7 @@ class NER_AlertsManager {
       coords: [27.0500, 88.5000],
       type: "Emergency Broadcast",
       severity: "critical",
-      reportedAt: "Just now (HQ Broadcast)",
+      reportedAt: "Just now",
       reportedBy: "State Emergency Operation Centre (SEOC)",
       verified: true,
       estimatedClearanceHrs: 48,
@@ -81,6 +131,7 @@ class NER_AlertsManager {
 
     window.NER_CONFIG.incidents.unshift(newBroadcast);
     this.renderAlerts();
+    this.renderRecentAlertsWidget();
     if (this.gisMap) {
       this.gisMap.renderIncidentMarkers();
     }
