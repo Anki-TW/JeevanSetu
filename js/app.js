@@ -165,18 +165,37 @@ class NER_App {
 
   setupThemeToggle() {
     const btn = document.getElementById('theme-toggle-btn');
+    const html = document.documentElement;
+
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+      html.classList.add('dark');
+      html.classList.remove('light');
+      if (btn) btn.innerText = "🌙";
+    } else {
+      html.classList.add('light');
+      html.classList.remove('dark');
+      if (btn) btn.innerText = "☀️";
+    }
+
     if (!btn) return;
 
     btn.addEventListener('click', () => {
-      const html = document.documentElement;
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
+        html.classList.add('light');
         btn.innerText = "☀️";
-        this.gisMap.setBaseMap('Terrain Contours (Topo)');
+        localStorage.setItem('theme', 'light');
+        if (this.gisMap) this.gisMap.setBaseMap('Terrain Contours (Topo)');
+        this.showNotification("☀️ Switched to Light Command Center Theme", "info");
       } else {
         html.classList.add('dark');
+        html.classList.remove('light');
         btn.innerText = "🌙";
-        this.gisMap.setBaseMap('Tactical Dark');
+        localStorage.setItem('theme', 'dark');
+        if (this.gisMap) this.gisMap.setBaseMap('Tactical Dark');
+        this.showNotification("🌙 Switched to Tactical Dark Command Center Theme", "info");
       }
     });
   }
