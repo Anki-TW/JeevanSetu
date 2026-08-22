@@ -1,9 +1,9 @@
 /**
- * Service Worker for Bachao-Bachao NER Logistics AI Platform
- * Provides offline PWA caching for mountain zones with zero network connectivity.
+ * Service Worker for Jeevan Setu - NER Logistics AI Platform
+ * Version: v2.0 (Forces Cache Bust for New Jeevan Setu UI)
  */
 
-const CACHE_NAME = 'bachao-ner-logistics-v1';
+const CACHE_NAME = 'jeevan-setu-ner-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './css/styles.css',
   './js/config.js',
   './js/i18n.js',
+  './js/weather-api.js',
   './js/gis-map.js',
   './js/ai-prediction.js',
   './js/fleet-tracker.js',
@@ -23,21 +24,21 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('📦 Caching core offline platform assets...');
+      console.log('📦 Caching Jeevan Setu v2 assets...');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
   self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event (Purge old v1 caches)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('🧹 Purging obsolete service worker cache:', key);
+            console.log('🧹 Purging old cache version:', key);
             return caches.delete(key);
           }
         })
@@ -47,36 +48,24 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event (Stale-While-Revalidate with offline fallback)
+// Fetch Event
 self.addEventListener('fetch', (event) => {
-  // Pass-through for tile servers or external CDN
-  if (event.request.url.includes('tile.opentopomap.org') || event.request.url.includes('basemaps.cartocdn.com')) {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
+  if (event.request.url.includes('tile.opentopomap.org') || event.request.url.includes('basemaps.cartocdn.com') || event.request.url.includes('open-meteo.com')) {
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
     return;
   }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+      if (cachedResponse) return cachedResponse;
       return fetch(event.request).then((networkResponse) => {
         if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
           return networkResponse;
         }
         const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         return networkResponse;
-      }).catch(() => {
-        // Offline fallback
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+      }).catch(() => caches.match('./index.html'));
     })
   );
 });
