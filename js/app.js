@@ -15,34 +15,70 @@ class NER_App {
   init() {
     console.log("🚀 Initializing Jeevan Setu Platform...");
 
-    // 1. Initialize GIS Engine
+    // 1. Initialize Live Satellite Weather API
+    this.weatherAPI = new window.NER_LiveWeatherAPI();
+    this.weatherAPI.init();
+    window.weatherAPI = this.weatherAPI;
+
+    // 2. Initialize GIS Engine
     this.gisMap = new window.NER_GISMap('gis-map-canvas');
     this.gisMap.init();
 
-    // 2. Initialize AI Engine
+    // 3. Initialize AI Engine
     this.aiEngine = new window.NER_AIPredictionEngine();
 
-    // 3. Initialize Fleet Tracker
+    // 4. Initialize Fleet Tracker
     this.fleetTracker = new window.NER_FleetTracker(this.gisMap);
     this.fleetTracker.init();
     window.fleetTracker = this.fleetTracker;
 
-    // 4. Initialize Incident Reporter
+    // 5. Initialize Incident Reporter
     this.incidentReporter = new window.NER_IncidentReporter(this.gisMap);
     window.incidentReporter = this.incidentReporter;
 
-    // 5. Initialize Alerts Manager
+    // 6. Initialize Alerts Manager
     this.alertsManager = new window.NER_AlertsManager(this.gisMap);
     this.alertsManager.init();
     window.alertsManager = this.alertsManager;
 
-    // 6. Setup Navigation, Theme Toggle, & Live Clock
+    // 7. Setup Navigation, Theme Toggle, & Live Clock
     this.setupNavigation();
     this.setupThemeToggle();
     this.startLiveClock();
     this.setupSearch();
 
-    console.log("✅ Jeevan Setu Command Center fully operational.");
+    console.log("✅ Jeevan Setu Command Center fully operational with Live 2026 Weather API.");
+  }
+
+  async handleWeatherLocationChange(value) {
+    if (value === 'gps') {
+      if (navigator.geolocation) {
+        this.showNotification("📍 Detecting your live GPS location...", "info");
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            await this.weatherAPI.fetchRealTimeWeather(lat, lng, "My Live Location");
+            this.gisMap.flyToLocation([lat, lng], 10);
+          },
+          (err) => {
+            this.showNotification("Could not fetch GPS permission. Showing Shillong.", "warning");
+            this.weatherAPI.fetchRealTimeWeather(25.5788, 91.8933, "Shillong, Meghalaya");
+          }
+        );
+      }
+      return;
+    }
+
+    const parts = value.split(',');
+    if (parts.length >= 3) {
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+      const name = parts.slice(2).join(',');
+
+      await this.weatherAPI.fetchRealTimeWeather(lat, lng, name);
+      this.gisMap.flyToLocation([lat, lng], 10);
+    }
   }
 
   setupNavigation() {

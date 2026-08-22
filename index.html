@@ -364,20 +364,38 @@
         <!-- RIGHT INTELLIGENCE COLUMN (WEATHER + ALERTS + AI PREDICTION) -->
         <div class="space-y-4">
           
-          <!-- Weather Intelligence Widget -->
-          <div class="ui-card p-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <h3 class="font-bold text-sm text-slate-900">Weather Intelligence</h3>
-              <a href="#" onclick="window.app.switchView('weather')" class="text-xs font-semibold text-cyan-600 hover:underline">View Details</a>
+          <!-- Live Weather Intelligence Widget (Real-Time Satellite API) -->
+          <div class="ui-card p-4 space-y-3 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 class="font-bold text-sm text-slate-900">Weather Intelligence</h3>
+              </div>
+              <span class="text-[10px] font-bold text-cyan-600 bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-200">Live Satellite API</span>
             </div>
 
-            <div class="flex items-center justify-between">
+            <!-- Live Regional Location Switcher -->
+            <div>
+              <select id="weather-location-select" onchange="window.app.handleWeatherLocationChange(this.value)" class="w-full bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-200 rounded-lg p-1.5 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                <option value="25.5788,91.8933,Shillong, Meghalaya">📍 Shillong, Meghalaya</option>
+                <option value="26.1445,91.7362,Guwahati, Assam">📍 Guwahati, Assam</option>
+                <option value="27.5861,91.8594,Tawang, Arunachal Pradesh">📍 Tawang, Arunachal Pradesh</option>
+                <option value="27.3389,88.6065,Gangtok, Sikkim">📍 Gangtok, Sikkim</option>
+                <option value="24.8170,93.9368,Imphal, Manipur">📍 Imphal, Manipur</option>
+                <option value="23.7271,92.7176,Aizawl, Mizoram">📍 Aizawl, Mizoram</option>
+                <option value="25.6751,94.1086,Kohima, Nagaland">📍 Kohima, Nagaland</option>
+                <option value="23.8315,91.2868,Agartala, Tripura">📍 Agartala, Tripura</option>
+                <option value="gps">📍 Use My Current Live GPS</option>
+              </select>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
               <div>
-                <p class="text-xs text-slate-500 font-medium">Shillong, Meghalaya</p>
-                <div class="text-3xl font-black text-slate-900 mt-0.5">18°C</div>
-                <p class="text-xs text-slate-600 font-semibold">Moderate Rain</p>
+                <p id="live-weather-location" class="text-xs text-slate-500 font-medium">Shillong, Meghalaya</p>
+                <div id="live-weather-temp" class="text-3xl font-black text-slate-900 mt-0.5 font-mono">--°C</div>
+                <p id="live-weather-desc" class="text-xs text-slate-600 font-semibold">Connecting satellite...</p>
               </div>
-              <div class="text-4xl">
+              <div id="live-weather-icon" class="text-4xl">
                 🌧️
               </div>
             </div>
@@ -386,45 +404,21 @@
             <div class="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 text-center text-xs">
               <div>
                 <span class="text-[10px] text-slate-400 block">Humidity</span>
-                <b class="text-slate-800 font-mono">87%</b>
+                <b id="live-weather-humidity" class="text-slate-800 font-mono">--%</b>
               </div>
               <div>
                 <span class="text-[10px] text-slate-400 block">Wind</span>
-                <b class="text-slate-800 font-mono">12 km/h</b>
+                <b id="live-weather-wind" class="text-slate-800 font-mono">-- km/h</b>
               </div>
               <div>
-                <span class="text-[10px] text-slate-400 block">Visibility</span>
-                <b class="text-slate-800 font-mono">5 km</b>
+                <span class="text-[10px] text-slate-400 block">Precipitation</span>
+                <b id="live-weather-precip" class="text-slate-800 font-mono text-cyan-600">-- mm</b>
               </div>
             </div>
 
-            <!-- 5-Day Mini Forecast -->
-            <div class="grid grid-cols-5 gap-1 text-center text-[10px]">
-              <div>
-                <span class="text-slate-400 block">Tue</span>
-                <span class="text-xs block my-0.5">🌧️</span>
-                <b class="text-slate-700">16°/20°</b>
-              </div>
-              <div>
-                <span class="text-slate-400 block">Wed</span>
-                <span class="text-xs block my-0.5">⛈️</span>
-                <b class="text-slate-700">15°/19°</b>
-              </div>
-              <div>
-                <span class="text-slate-400 block">Thu</span>
-                <span class="text-xs block my-0.5">⛅</span>
-                <b class="text-slate-700">16°/21°</b>
-              </div>
-              <div>
-                <span class="text-slate-400 block">Fri</span>
-                <span class="text-xs block my-0.5">☀️</span>
-                <b class="text-slate-700">17°/22°</b>
-              </div>
-              <div>
-                <span class="text-slate-400 block">Sat</span>
-                <span class="text-xs block my-0.5">🌧️</span>
-                <b class="text-slate-700">16°/20°</b>
-              </div>
+            <!-- 5-Day Real-Time Daily Forecast Grid -->
+            <div id="live-weather-forecast-grid" class="grid grid-cols-5 gap-1 text-center text-[10px]">
+              <div class="col-span-5 text-center text-slate-400 py-1">Streaming live forecast...</div>
             </div>
           </div>
 
@@ -811,6 +805,7 @@
   <!-- APPLICATION SCRIPTS -->
   <script src="js/config.js"></script>
   <script src="js/i18n.js"></script>
+  <script src="js/weather-api.js"></script>
   <script src="js/gis-map.js"></script>
   <script src="js/ai-prediction.js"></script>
   <script src="js/fleet-tracker.js"></script>
