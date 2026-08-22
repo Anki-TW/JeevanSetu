@@ -38,12 +38,12 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body class="bg-[#f1f5f9] text-slate-800 flex h-screen overflow-hidden">
+<body class="bg-[#f1f5f9] text-slate-800 flex flex-col lg:flex-row h-screen overflow-x-hidden select-none">
 
   <!-- =========================================================================
-       1. LEFT NAVIGATION SIDEBAR
+       1. DESKTOP LEFT NAVIGATION SIDEBAR (Hidden on mobile < 1024px)
        ========================================================================= -->
-  <aside class="w-64 bg-[#0d1527] text-white flex flex-col justify-between shrink-0 border-r border-slate-800/80 z-40">
+  <aside class="w-64 bg-[#0d1527] text-white flex-col justify-between shrink-0 border-r border-slate-800/80 z-40 hidden lg:flex">
     
     <!-- Logo & Brand Header -->
     <div>
@@ -123,18 +123,80 @@
   </aside>
 
   <!-- =========================================================================
+       SLIDE-OVER MOBILE DRAWER (Visible when tapping ☰ on mobile)
+       ========================================================================= -->
+  <div id="mobile-drawer-overlay" onclick="window.app.toggleMobileDrawer(false)" class="fixed inset-0 bg-slate-950/70 z-[9998] hidden lg:hidden backdrop-blur-xs"></div>
+  <aside id="mobile-drawer" class="fixed top-0 bottom-0 left-0 w-72 bg-[#0d1527] text-white flex flex-col justify-between z-[9999] transform -translate-x-full transition-transform duration-300 lg:hidden shadow-2xl">
+    <div>
+      <div class="p-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🌱</span>
+          <b class="text-sm font-bold text-white">Jeevan Setu</b>
+        </div>
+        <button onclick="window.app.toggleMobileDrawer(false)" class="text-slate-400 hover:text-white text-xl p-1">&times;</button>
+      </div>
+
+      <nav class="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-160px)]">
+        <div onclick="window.app.switchView('dashboard'); window.app.toggleMobileDrawer(false)" class="nav-item active">
+          <span class="nav-icon text-base">📊</span><span>Dashboard</span>
+        </div>
+        <div onclick="window.app.switchView('gis'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🗺️</span><span>GIS Map</span>
+        </div>
+        <div onclick="window.app.switchView('road-accessibility'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🚧</span><span>Road & Accessibility</span>
+        </div>
+        <div onclick="window.app.switchView('vehicles'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🚛</span><span>Vehicles</span>
+        </div>
+        <div onclick="window.app.switchView('deliveries'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">📦</span><span>Deliveries</span>
+        </div>
+        <div onclick="window.app.switchView('alerts'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🚨</span><span>Alerts & Notifications</span>
+        </div>
+        <div onclick="window.app.switchView('weather'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🌧️</span><span>Weather Intelligence</span>
+        </div>
+        <div onclick="window.app.switchView('essential-supplies'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🏥</span><span>Essential Supplies</span>
+        </div>
+        <div onclick="window.app.switchView('analytics'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">📈</span><span>Analytics & Reports</span>
+        </div>
+        <div onclick="window.app.switchView('gov-dashboard'); window.app.toggleMobileDrawer(false)" class="nav-item">
+          <span class="nav-icon text-base">🏛️</span><span>Government Dashboard</span>
+        </div>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- =========================================================================
        2. MAIN CONTENT WRAPPER
        ========================================================================= -->
-  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+  <div class="flex-1 flex flex-col min-h-screen lg:h-screen overflow-hidden">
 
     <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200/80 px-6 py-3 flex items-center justify-between z-30 shrink-0 shadow-sm">
+    <header class="bg-white border-b border-slate-200/80 px-4 lg:px-6 py-2.5 flex items-center justify-between z-30 shrink-0 shadow-sm">
       
-      <!-- Global Search Bar -->
-      <div class="relative w-96">
-        <input id="global-search-input" type="text" placeholder="Search location, route, vehicle, incident..."
-               class="w-full bg-slate-100/80 border border-slate-200 rounded-full pl-10 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition shadow-inner">
-        <span class="absolute left-3.5 top-2.5 text-xs text-slate-400">🔍</span>
+      <div class="flex items-center gap-3">
+        <!-- Mobile Hamburger Menu Button -->
+        <button onclick="window.app.toggleMobileDrawer(true)" class="lg:hidden p-1.5 rounded-lg bg-slate-100 text-slate-700 text-lg hover:bg-slate-200 transition">
+          ☰
+        </button>
+
+        <!-- Brand Name on Mobile -->
+        <div class="flex items-center gap-2 lg:hidden">
+          <span class="text-lg">🌱</span>
+          <b class="text-sm font-extrabold text-slate-900">Jeevan Setu</b>
+        </div>
+
+        <!-- Global Search Bar -->
+        <div class="relative w-48 sm:w-72 md:w-96 hidden sm:block">
+          <input id="global-search-input" type="text" placeholder="Search location, route, vehicle, incident..."
+                 class="w-full bg-slate-100/80 border border-slate-200 rounded-full pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition">
+          <span class="absolute left-3 top-2 text-xs text-slate-400">🔍</span>
+        </div>
       </div>
 
       <!-- Right HUD Items -->
@@ -793,7 +855,8 @@
     <!-- =========================================================================
          7. FOOTER SUMMARY BAR
          ========================================================================= -->
-    <footer class="bg-white border-t border-slate-200 px-6 py-2 flex flex-wrap items-center justify-between text-xs text-slate-600 shrink-0 shadow-sm">
+    <!-- FOOTER SUMMARY BAR (Desktop) -->
+    <footer class="bg-white border-t border-slate-200 px-6 py-2 hidden lg:flex flex-wrap items-center justify-between text-xs text-slate-600 shrink-0 shadow-sm">
       <div class="flex flex-wrap items-center gap-6 font-semibold">
         <span><b>25+</b> Districts Connected</span>
         <span><b>500+</b> Routes Monitored</span>
@@ -806,6 +869,25 @@
     </footer>
 
   </div>
+
+  <!-- FIXED MOBILE BOTTOM NAVIGATION BAR (Visible on screens < 1024px) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-[#0d1527] border-t border-slate-800 text-white flex items-center justify-around py-2 z-[9990] lg:hidden text-[10px] shadow-2xl">
+    <button onclick="window.app.switchView('dashboard')" class="flex flex-col items-center gap-0.5 text-cyan-400 font-bold">
+      <span class="text-base">📊</span><span>Dashboard</span>
+    </button>
+    <button onclick="window.app.switchView('gis')" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-white">
+      <span class="text-base">🗺️</span><span>Map</span>
+    </button>
+    <button onclick="window.app.switchView('vehicles')" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-white">
+      <span class="text-base">🚚</span><span>Convoys</span>
+    </button>
+    <button onclick="window.app.switchView('alerts')" class="flex flex-col items-center gap-0.5 text-slate-300 hover:text-white">
+      <span class="text-base">🚨</span><span>Alerts</span>
+    </button>
+    <button onclick="window.aiAssistant.openModal()" class="flex flex-col items-center gap-0.5 text-indigo-400 hover:text-white font-bold">
+      <span class="text-base">🤖</span><span>AI Copilot</span>
+    </button>
+  </nav>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-notification-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>

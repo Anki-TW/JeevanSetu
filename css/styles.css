@@ -1,6 +1,6 @@
 /* ==========================================================================
    Jeevan Setu - NER Logistics & Accessibility Intelligence Platform
-   UI Theme & Component Stylesheet (Light & Dark Command Center Themes)
+   UI Theme & Mobile Responsive Stylesheet
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
@@ -337,4 +337,18 @@ html.dark .route-step-node {
 
 .pulse-hazard {
   animation: ring-pulse 2s infinite;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE OVERRIDES (< 1024px)
+   ========================================================================== */
+@media (max-width: 1023px) {
+  body {
+    overflow-y: auto !important;
+    padding-bottom: 60px; /* Space for mobile bottom bar */
+  }
+
+  .map-floating-glass {
+    max-width: calc(100vw - 32px);
+  }
 }

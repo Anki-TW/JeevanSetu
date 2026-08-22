@@ -61,7 +61,22 @@ class NER_App {
     this.startLiveClock();
     this.setupSearch();
 
-    console.log("✅ Jeevan Setu Command Center fully operational with Live 2026 Weather API.");
+    console.log("✅ Jeevan Setu Command Center fully operational with Mobile Responsive Layout & APIs.");
+  }
+
+  toggleMobileDrawer(open) {
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('mobile-drawer-overlay');
+
+    if (!drawer || !overlay) return;
+
+    if (open) {
+      drawer.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    } else {
+      drawer.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
   }
 
   async handleWeatherLocationChange(value) {
