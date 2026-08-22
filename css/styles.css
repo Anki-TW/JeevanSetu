@@ -295,13 +295,22 @@ html.dark .route-step-node {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
 }
 
-/* Map Floating Widgets */
+/* Map Floating Widgets & Collapsible Layers Panel */
 .map-floating-glass {
   background: rgba(13, 21, 39, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
+}
+
+#map-layers-floating-panel.layers-collapsed #map-layers-body {
+  max-height: 0px !important;
+  padding-top: 0px !important;
+  margin-top: 0px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border-top-color: transparent !important;
 }
 
 /* Leaflet Container Styling */

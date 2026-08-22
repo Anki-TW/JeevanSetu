@@ -372,54 +372,65 @@
           <div class="relative w-full h-[480px] rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-900">
             <div id="gis-map-canvas" class="w-full h-full"></div>
 
-            <!-- Floating Map Layers & Overlays Menu -->
-            <div class="absolute top-3 left-3 z-[1000] map-floating-glass p-3.5 rounded-xl shadow-2xl text-xs space-y-2.5 w-52">
-              <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
-                <span class="font-bold text-[11px] text-cyan-300 uppercase tracking-wider flex items-center gap-1">
-                  <span>Layers & Overlays</span>
-                </span>
-                <span class="text-[10px] text-slate-400">Interactive</span>
-              </div>
+            <!-- Floating Layers Control Panel (Collapsible with Slide Animation) -->
+            <div id="map-layers-floating-panel" class="absolute top-4 left-4 z-[999] transition-all duration-300">
+              <div class="map-floating-glass rounded-2xl p-3 shadow-2xl border border-white/20 w-64 select-none">
+                
+                <!-- Collapsible Panel Header (Click to Slide Open/Close) -->
+                <div onclick="window.app.toggleMapLayersPanel()" class="flex items-center justify-between cursor-pointer group pb-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm text-cyan-400 group-hover:scale-110 transition">🥞</span>
+                    <span class="font-extrabold text-xs tracking-wider uppercase text-cyan-300">Layers & Overlays</span>
+                  </div>
+                  <button id="map-layers-minimize-btn" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-cyan-600 text-white font-black text-xs flex items-center justify-center border border-white/20 transition shadow">
+                    −
+                  </button>
+                </div>
 
-              <!-- Base Map Selection Dropdown -->
-              <div>
-                <label class="block text-[10px] text-slate-300 font-semibold mb-1">Base Map Style:</label>
-                <select id="basemap-selector" onchange="window.app.gisMap.setBaseMap(this.value)" class="w-full bg-slate-900/90 text-white text-[11px] font-medium border border-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-400 cursor-pointer">
-                  <option value="Terrain Contours (Topo)">🏔️ Terrain Contours (Topo)</option>
-                  <option value="Tactical Dark">🌙 Tactical Dark</option>
-                  <option value="Standard OSM">🗺️ Standard OSM</option>
-                  <option value="Satellite Imagery">🛰️ Satellite Imagery</option>
-                  <option value="ISRO Bhuvan (India)">🇮🇳 ISRO Bhuvan (India Satellite)</option>
-                  <option value="NASA Earthdata Satellite">🚀 NASA Earthdata GIBS Satellite</option>
-                </select>
-              </div>
+                <!-- Sliding Panel Body -->
+                <div id="map-layers-body" class="space-y-3 pt-2.5 transition-all duration-300 overflow-hidden max-h-[450px] opacity-100 border-t border-white/10 mt-2">
+                  <!-- Base Map Selection Dropdown -->
+                  <div>
+                    <label class="block text-[10px] text-slate-300 font-semibold mb-1">Base Map Style:</label>
+                    <select id="basemap-selector" onchange="window.app.gisMap.setBaseMap(this.value)" class="w-full bg-slate-900/90 text-white text-[11px] font-medium border border-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-400 cursor-pointer">
+                      <option value="Terrain Contours (Topo)">🏔️ Terrain Contours (Topo)</option>
+                      <option value="Tactical Dark">🌙 Tactical Dark</option>
+                      <option value="Standard OSM">🗺️ Standard OSM</option>
+                      <option value="Satellite Imagery">🛰️ Satellite Imagery</option>
+                      <option value="ISRO Bhuvan (India)">🇮🇳 ISRO Bhuvan (India Satellite)</option>
+                      <option value="NASA Earthdata Satellite">🚀 NASA Earthdata GIBS Satellite</option>
+                    </select>
+                  </div>
 
-              <!-- Layer Toggles -->
-              <div class="space-y-1.5 pt-1 border-t border-white/10 text-[11px]">
-                <label class="flex items-center justify-between cursor-pointer text-slate-200 hover:text-white">
-                  <span class="flex items-center gap-1.5">🛣️ <span>Roads & Highways</span></span>
-                  <input type="checkbox" id="layer-toggle-highways" checked class="accent-cyan-500 w-3.5 h-3.5">
-                </label>
-                <label class="flex items-center justify-between cursor-pointer text-slate-200 hover:text-white">
-                  <span class="flex items-center gap-1.5">🚦 <span>Traffic & Status</span></span>
-                  <input type="checkbox" id="layer-toggle-traffic" checked class="accent-cyan-500 w-3.5 h-3.5">
-                </label>
-                <label class="flex items-center justify-between cursor-pointer text-slate-200 hover:text-white">
-                  <span class="flex items-center gap-1.5">🌧️ <span>Weather Radar</span></span>
-                  <input type="checkbox" id="layer-toggle-radar" checked class="accent-cyan-500 w-3.5 h-3.5">
-                </label>
-                <label class="flex items-center justify-between cursor-pointer text-slate-200 hover:text-white">
-                  <span class="flex items-center gap-1.5">⚠️ <span>Disruptions / Landslides</span></span>
-                  <input type="checkbox" id="layer-toggle-incidents" checked class="accent-cyan-500 w-3.5 h-3.5">
-                </label>
-                <label class="flex items-center justify-between cursor-pointer text-slate-200 hover:text-white">
-                  <span class="flex items-center gap-1.5">🚚 <span>Essential Supply Convoys</span></span>
-                  <input type="checkbox" id="layer-toggle-fleet" checked class="accent-cyan-500 w-3.5 h-3.5">
-                </label>
-                <label class="flex items-center justify-between cursor-pointer text-slate-200 hover:text-white">
-                  <span class="flex items-center gap-1.5">🌉 <span>Bridges & Supply Depots</span></span>
-                  <input type="checkbox" id="layer-toggle-bridges" checked class="accent-cyan-500 w-3.5 h-3.5">
-                </label>
+                  <!-- Layer Toggles Checkboxes -->
+                  <div class="space-y-1.5 text-xs">
+                    <label class="flex items-center justify-between text-slate-200 hover:text-white cursor-pointer py-0.5">
+                      <span class="flex items-center gap-1.5 text-[11px]">🗺️ Roads & Highways</span>
+                      <input type="checkbox" id="layer-toggle-highways" checked class="rounded accent-cyan-500 w-3.5 h-3.5 cursor-pointer">
+                    </label>
+                    <label class="flex items-center justify-between text-slate-200 hover:text-white cursor-pointer py-0.5">
+                      <span class="flex items-center gap-1.5 text-[11px]">🚥 Traffic & Status</span>
+                      <input type="checkbox" id="layer-toggle-traffic" checked class="rounded accent-cyan-500 w-3.5 h-3.5 cursor-pointer">
+                    </label>
+                    <label class="flex items-center justify-between text-slate-200 hover:text-white cursor-pointer py-0.5">
+                      <span class="flex items-center gap-1.5 text-[11px]">🌧️ Weather Radar</span>
+                      <input type="checkbox" id="layer-toggle-radar" checked class="rounded accent-cyan-500 w-3.5 h-3.5 cursor-pointer">
+                    </label>
+                    <label class="flex items-center justify-between text-slate-200 hover:text-white cursor-pointer py-0.5">
+                      <span class="flex items-center gap-1.5 text-[11px]">⚠️ Disruptions / Landslides</span>
+                      <input type="checkbox" id="layer-toggle-incidents" checked class="rounded accent-cyan-500 w-3.5 h-3.5 cursor-pointer">
+                    </label>
+                    <label class="flex items-center justify-between text-slate-200 hover:text-white cursor-pointer py-0.5">
+                      <span class="flex items-center gap-1.5 text-[11px]">🚚 Essential Supply Convoys</span>
+                      <input type="checkbox" id="layer-toggle-fleet" checked class="rounded accent-cyan-500 w-3.5 h-3.5 cursor-pointer">
+                    </label>
+                    <label class="flex items-center justify-between text-slate-200 hover:text-white cursor-pointer py-0.5">
+                      <span class="flex items-center gap-1.5 text-[11px]">🌉 Bridges & Supply Depots</span>
+                      <input type="checkbox" id="layer-toggle-bridges" checked class="rounded accent-cyan-500 w-3.5 h-3.5 cursor-pointer">
+                    </label>
+                  </div>
+                </div>
+
               </div>
             </div>
 

@@ -567,6 +567,35 @@ class NER_App {
     }
   }
 
+  toggleMobileDrawer(open) {
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('mobile-drawer-overlay');
+
+    if (!drawer || !overlay) return;
+
+    if (open) {
+      drawer.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    } else {
+      drawer.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
+  }
+
+  toggleMapLayersPanel() {
+    const panel = document.getElementById('map-layers-floating-panel');
+    const btn = document.getElementById('map-layers-minimize-btn');
+    if (!panel) return;
+
+    if (panel.classList.contains('layers-collapsed')) {
+      panel.classList.remove('layers-collapsed');
+      if (btn) btn.innerText = "−";
+    } else {
+      panel.classList.add('layers-collapsed');
+      if (btn) btn.innerText = "+";
+    }
+  }
+
   setupThemeToggle() {
     const btn = document.getElementById('theme-toggle-btn');
     const html = document.documentElement;
