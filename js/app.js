@@ -520,22 +520,46 @@ class NER_App {
       }
     });
 
-    // Handle view actions
-        this.fleetTracker.focusActiveConvoy();
-      }
-      this.showNotification("🚛 Centered on Live GPS Supply Convoys.", "info");
-    } else if (viewName === 'alerts') {
-      this.gisMap.flyToLocation([27.0500, 88.5000], 9);
-      this.showNotification("🚨 Displaying Active Disruption Hazards across North East.", "danger");
-    } else if (viewName === 'weather') {
-      this.gisMap.flyToLocation([25.2700, 91.7300], 8);
-      this.showNotification("🌧️ Weather Radar: Heavy precipitation zone over Meghalaya & Sikkim.", "info");
-    } else if (viewName === 'ai-route') {
-      const plan = this.aiEngine.planRoute('as_kamrup', 'ar_tawang', 'medicine');
-      this.gisMap.drawRoute(plan.aiAlternateRoute, true);
-      this.showNotification("🤖 AI Disruption Rerouting: Terrain-Safe alternate path engaged!", "success");
-    } else {
-      this.showNotification(`Switched to ${viewName.replace('-', ' ').toUpperCase()} view.`, "info");
+    // Handle view actions cleanly
+    switch (viewName) {
+      case 'dashboard':
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.showNotification("📊 Main Command Center Dashboard Active", "info");
+        break;
+      case 'gis':
+        const mapCanvas = document.getElementById('gis-map-canvas');
+        if (mapCanvas) mapCanvas.scrollIntoView({ behavior: 'smooth' });
+        this.showNotification("🗺️ Full GIS Map view activated. Click any highway or district marker.", "info");
+        break;
+      case 'road-accessibility':
+        this.openAlertsModal();
+        break;
+      case 'vehicles':
+        this.openVehiclesModal();
+        break;
+      case 'deliveries':
+        this.openDeliveriesModal();
+        break;
+      case 'alerts':
+        this.openAlertsModal();
+        break;
+      case 'weather':
+        this.openWeatherModal();
+        break;
+      case 'essential-supplies':
+        this.openSuppliesModal();
+        break;
+      case 'analytics':
+        this.openAnalyticsModal();
+        break;
+      case 'gov-dashboard':
+        this.openGovDashboardModal();
+        break;
+      case 'settings':
+        this.openSettingsModal();
+        break;
+      default:
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     if (this.gisMap && this.gisMap.map) {
