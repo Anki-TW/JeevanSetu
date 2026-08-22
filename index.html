@@ -303,11 +303,13 @@
               <!-- Base Map Selection Dropdown -->
               <div>
                 <label class="block text-[10px] text-slate-300 font-semibold mb-1">Base Map Style:</label>
-                <select id="basemap-selector" onchange="window.app.gisMap.setBaseMap(this.value)" class="w-full bg-slate-900/90 text-white text-[11px] font-medium border border-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-400">
+                <select id="basemap-selector" onchange="window.app.gisMap.setBaseMap(this.value)" class="w-full bg-slate-900/90 text-white text-[11px] font-medium border border-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-400 cursor-pointer">
                   <option value="Terrain Contours (Topo)">🏔️ Terrain Contours (Topo)</option>
                   <option value="Tactical Dark">🌙 Tactical Dark</option>
                   <option value="Standard OSM">🗺️ Standard OSM</option>
                   <option value="Satellite Imagery">🛰️ Satellite Imagery</option>
+                  <option value="ISRO Bhuvan (India)">🇮🇳 ISRO Bhuvan (India Satellite)</option>
+                  <option value="NASA Earthdata Satellite">🚀 NASA Earthdata GIBS Satellite</option>
                 </select>
               </div>
 
@@ -814,6 +816,7 @@
   <script src="js/weather-api.js"></script>
   <script src="js/geocoding-api.js"></script>
   <script src="js/ai-assistant.js"></script>
+  <script src="js/osrm-routing-api.js"></script>
   <script src="js/gis-map.js"></script>
   <script src="js/ai-prediction.js"></script>
   <script src="js/fleet-tracker.js"></script>

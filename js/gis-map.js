@@ -104,14 +104,29 @@ class NER_GISMap {
       maxZoom: 18
     });
 
+    // 5. ISRO Bhuvan Indian Geospatial Service Layer
+    const bhuvan = L.tileLayer('https://bhuvan-vec1.nrsc.gov.in/bhuvan/gwc/service/wmts?layer=india3&style=default&tilematrixset=EPSG%3A900913&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix=EPSG%3A900913%3A{z}&TileCol={x}&TileRow={y}', {
+      maxZoom: 18,
+      attribution: 'ISRO Bhuvan NRSC'
+    });
+
+    // 6. NASA Earthdata GIBS Live Precipitation & Cloud Overlay Layer
+    const nasaEarthdata = L.tileLayer('https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2026-08-20/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg', {
+      maxZoom: 9,
+      subdomains: 'abc',
+      attribution: 'NASA Earthdata GIBS'
+    });
+
     this.layers.baseMaps = {
       "Terrain Contours (Topo)": openTopo,
       "Tactical Dark": darkMatter,
       "Standard OSM": osm,
-      "Satellite Imagery": satellite
+      "Satellite Imagery": satellite,
+      "ISRO Bhuvan (India)": bhuvan,
+      "NASA Earthdata Satellite": nasaEarthdata
     };
 
-    // Default to Terrain Topo as in screenshot
+    // Default to Terrain Topo
     openTopo.addTo(this.map);
   }
 

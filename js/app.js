@@ -29,7 +29,11 @@ class NER_App {
     this.geocodingAPI.init();
     window.geocodingAPI = this.geocodingAPI;
 
-    // 4. Initialize Jeevan AI Assistant Copilot
+    // 4. Initialize OSRM Live Driving Directions API
+    this.osrmRoutingAPI = new window.NER_OSRMRoutingAPI(this.gisMap);
+    window.osrmRoutingAPI = this.osrmRoutingAPI;
+
+    // 5. Initialize Jeevan AI Assistant Copilot
     this.aiAssistant = new window.NER_AIAssistant();
     this.aiAssistant.init();
     window.aiAssistant = this.aiAssistant;
