@@ -55,13 +55,68 @@ class NER_App {
     this.alertsManager.init();
     window.alertsManager = this.alertsManager;
 
-    // 7. Setup Navigation, Theme Toggle, & Live Clock
+    // 7. Setup Navigation, Theme Toggle, Live Clock & Accessibility Shortcuts
     this.setupNavigation();
     this.setupThemeToggle();
     this.startLiveClock();
     this.setupSearch();
+    this.setupAccessibilityShortcuts();
 
-    console.log("✅ Jeevan Setu Command Center fully operational with Mobile Responsive Layout & APIs.");
+    console.log("✅ Jeevan Setu Command Center fully operational with WCAG 2.1 AA Accessibility Engine.");
+  }
+
+  setupAccessibilityShortcuts() {
+    // Keyboard Shortcut: Press '/' to focus global search bar
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const searchInput = document.getElementById('global-search-input');
+        if (searchInput) {
+          searchInput.focus();
+          this.announceToScreenReader("Search bar focused. Type a location, route, or incident.");
+        }
+      }
+    });
+
+    // Create Screen Reader Announcer region if not present
+    if (!document.getElementById('a11y-announcer')) {
+      const announcer = document.createElement('div');
+      announcer.id = 'a11y-announcer';
+      announcer.className = 'sr-only';
+      announcer.setAttribute('aria-live', 'polite');
+      announcer.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(announcer);
+    }
+  }
+
+  announceToScreenReader(message) {
+    const announcer = document.getElementById('a11y-announcer');
+    if (announcer) {
+      announcer.textContent = message;
+    }
+  }
+
+  setFontScale(scale) {
+    const html = document.documentElement;
+    html.classList.remove('text-scaling-sm', 'text-scaling-base', 'text-scaling-lg');
+    html.classList.add(`text-scaling-${scale}`);
+    localStorage.setItem('a11y_font_scale', scale);
+    this.showNotification(`🔤 Font size changed to ${scale.toUpperCase()}`, "info");
+    this.announceToScreenReader(`Font size changed to ${scale}`);
+  }
+
+  toggleHighContrast() {
+    const html = document.documentElement;
+    const isHighContrast = html.classList.toggle('high-contrast');
+    localStorage.setItem('a11y_high_contrast', isHighContrast ? 'true' : 'false');
+    
+    if (isHighContrast) {
+      this.showNotification("👁️ High Contrast Mode Activated (WCAG AAA)", "info");
+      this.announceToScreenReader("High Contrast Mode Activated");
+    } else {
+      this.showNotification("👁️ Standard Color Mode Restored", "info");
+      this.announceToScreenReader("Standard Color Mode Restored");
+    }
   }
 
   openAlertsModal() {

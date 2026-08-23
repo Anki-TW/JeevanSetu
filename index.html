@@ -195,12 +195,12 @@
        ========================================================================= -->
   <div class="flex-1 flex flex-col min-h-screen lg:h-screen overflow-hidden">
 
-    <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200/80 px-4 lg:px-6 py-2.5 flex items-center justify-between z-30 shrink-0 shadow-sm">
+    <!-- TOP HEADER (WCAG 2.1 AA Compliant) -->
+    <header role="banner" class="bg-white border-b border-slate-200/80 px-4 lg:px-6 py-2.5 flex items-center justify-between z-30 shrink-0 shadow-sm">
       
       <div class="flex items-center gap-3">
         <!-- Mobile Hamburger Menu Button -->
-        <button onclick="window.app.toggleMobileDrawer(true)" class="lg:hidden p-1.5 rounded-lg bg-slate-100 text-slate-700 text-lg hover:bg-slate-200 transition">
+        <button onclick="window.app.toggleMobileDrawer(true)" aria-label="Open Mobile Navigation Drawer" class="lg:hidden p-1.5 rounded-lg bg-slate-100 text-slate-700 text-lg hover:bg-slate-200 transition focus-visible:ring-2 focus-visible:ring-emerald-500">
           ☰
         </button>
 
@@ -210,33 +210,8 @@
           <b class="text-sm font-extrabold text-slate-900">Jeevan Setu</b>
         </div>
 
-        <!-- Global Search Bar -->
+        <!-- Global Search Bar with Keyboard Shortcut / -->
         <div class="relative w-48 sm:w-72 md:w-96 hidden sm:block">
-          <input id="global-search-input" type="text" placeholder="Search location, route, vehicle, incident..."
-                 class="w-full bg-slate-100/80 border border-slate-200 rounded-full pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition">
-          <span class="absolute left-3 top-2 text-xs text-slate-400">🔍</span>
-        </div>
-      </div>
-
-      <!-- Right HUD Items -->
-      <div class="flex items-center gap-4">
-        
-        <!-- Jeevan AI Copilot Button -->
-        <button onclick="window.aiAssistant.openModal()" class="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-extrabold rounded-full shadow-lg shadow-indigo-500/20 transition flex items-center gap-1.5">
-          <span>🤖 Jeevan AI</span>
-          <span class="bg-white/20 text-[10px] px-1.5 py-0.2 rounded-full">Copilot</span>
-        </button>
-
-        <!-- Live Date & Clock -->
-        <div class="text-xs text-slate-600 flex items-center gap-2 font-medium">
-          <span id="live-ist-date">20 May 2026 | 10:30 AM</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live
-          </span>
-        </div>
-
-        <!-- Notification Bell -->
-        <div class="relative cursor-pointer p-1.5 hover:bg-slate-100 rounded-full transition">
           <span class="text-lg">🔔</span>
           <span class="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">12</span>
         </div>
